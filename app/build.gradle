@@ -1,0 +1,18 @@
+apply plugin: 'com.android.application'
+
+android {
+    defaultConfig {
+        applicationId "net.mafro.android.wakeonlan"
+        minSdkVersion 15
+        targetSdkVersion 19
+        compileSdkVersion 19
+        buildToolsVersion "28.0.3"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+}
