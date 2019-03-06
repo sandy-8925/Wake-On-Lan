@@ -56,12 +56,12 @@ public class MagicPacket
 	static final int PORT = 9;
 	private static final char SEPARATOR = ':';
 
-	private static String send(String mac, String ip) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	private static String send(String mac, String ip) throws IOException, IllegalArgumentException
 	{
 		return send(mac, ip, PORT);
 	}
 
-	static String send(String mac, String ip, int port) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	static String send(String mac, String ip, int port) throws IOException, IllegalArgumentException
 	{
 		// validate MAC and chop into array
 		final String[] hex = validateMac(mac);
@@ -130,23 +130,21 @@ public class MagicPacket
 		mac = mac.replace(";", ":");
 
 		// attempt to assist the user a little
-		String newMac = "";
-
 		if(mac.matches("([a-zA-Z0-9]){12}")) {
 			// expand 12 chars into a valid mac address
-			for(int i=0; i<mac.length(); i++){
+			StringBuilder macBuilder = new StringBuilder();
+			for(int i = 0; i<mac.length(); i++) {
 				if((i > 1) && (i % 2 == 0)) {
-					newMac += ":";
+					macBuilder.append(':');
 				}
-				newMac += mac.charAt(i);
+				macBuilder.append(mac.charAt(i));
 			}
-		}else{
-			newMac = mac;
+			mac = macBuilder.toString();
 		}
 
 		// regexp pattern match a valid MAC address
 		final Pattern pat = Pattern.compile("((([0-9a-fA-F]){2}[-:]){5}([0-9a-fA-F]){2})");
-		final Matcher m = pat.matcher(newMac);
+		final Matcher m = pat.matcher(mac);
 
 		if(m.find()) {
 			String result = m.group();
