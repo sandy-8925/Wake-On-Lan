@@ -52,16 +52,16 @@ public class MagicPacket
 {
 	private static final String TAG = "MagicPacket";
 
-	public static final String BROADCAST = "192.168.1.255";
-	public static final int PORT = 9;
-	public static final char SEPARATOR = ':';
+	static final String BROADCAST = "192.168.1.255";
+	static final int PORT = 9;
+	private static final char SEPARATOR = ':';
 
-	public static String send(String mac, String ip) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	private static String send(String mac, String ip) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
 	{
 		return send(mac, ip, PORT);
 	}
 
-	public static String send(String mac, String ip, int port) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
+	static String send(String mac, String ip, int port) throws UnknownHostException, SocketException, IOException, IllegalArgumentException
 	{
 		// validate MAC and chop into array
 		final String[] hex = validateMac(mac);
@@ -93,7 +93,7 @@ public class MagicPacket
 		return hex[0]+SEPARATOR+hex[1]+SEPARATOR+hex[2]+SEPARATOR+hex[3]+SEPARATOR+hex[4]+SEPARATOR+hex[5];
 	}
 
-	public static String cleanMac(String mac) throws IllegalArgumentException
+	static String cleanMac(String mac) throws IllegalArgumentException
 	{
 		final String[] hex = validateMac(mac);
 
@@ -105,14 +105,14 @@ public class MagicPacket
 			sb.append(hex[i]);
 		}
 		String testMac = sb.toString();
-		if((testMac.toLowerCase().equals(testMac) == false) && (testMac.toUpperCase().equals(testMac) == false)) {
+		if((!testMac.toLowerCase().equals(testMac)) && (!testMac.toUpperCase().equals(testMac))) {
 			isMixedCase = true;
 		}
 
 		sb = new StringBuffer();
 		for(int i=0; i<6; i++) {
 			// convert mixed case to lower
-			if(isMixedCase == true) {
+			if(isMixedCase) {
 				sb.append(hex[i].toLowerCase());
 			}else{
 				sb.append(hex[i]);

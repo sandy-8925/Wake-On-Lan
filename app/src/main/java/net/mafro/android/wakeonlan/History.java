@@ -35,29 +35,29 @@ import android.provider.BaseColumns;
 /**
  *	@desc	convenience definitions for HistoryProvider
  */
-public final class History {
-	public static final String AUTHORITY = "net.mafro.android.wakeonlan.historyprovider";
+final class History {
+	static final String AUTHORITY = "net.mafro.android.wakeonlan.historyprovider";
 
 	private History() {}
 
-	public static final class Items implements BaseColumns {
+	static final class Items implements BaseColumns {
 		private Items() {}
 
-		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/history");
+		static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/history");
 
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mafro.wakeonlan.history";
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mafro.wakeonlan.history";
+		static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mafro.wakeonlan.history";
+		static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mafro.wakeonlan.history";
 
-		public static final String DEFAULT_SORT_ORDER = "last_used DESC";
+		static final String DEFAULT_SORT_ORDER = "last_used DESC";
 
-		public static final String TITLE = "title";
-		public static final String MAC = "mac";
-		public static final String IP = "ip";
-		public static final String PORT = "port";
-		public static final String CREATED_DATE = "created";
-		public static final String LAST_USED_DATE = "last_used";
-		public static final String USED_COUNT = "used_count";
-		public static final String IS_STARRED = "is_starred";
+		static final String TITLE = "title";
+		static final String MAC = "mac";
+		static final String IP = "ip";
+		static final String PORT = "port";
+		static final String CREATED_DATE = "created";
+		static final String LAST_USED_DATE = "last_used";
+		static final String USED_COUNT = "used_count";
+		static final String IS_STARRED = "is_starred";
 	}
 
 }
