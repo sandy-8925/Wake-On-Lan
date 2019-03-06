@@ -5,3 +5,5 @@ lib/*
 local.properties
 R.java
 build.xml
+.gradle/*
+app/build/*
