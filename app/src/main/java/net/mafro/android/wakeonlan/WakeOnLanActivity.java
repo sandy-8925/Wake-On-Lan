@@ -34,11 +34,7 @@ import android.app.LocalActivityManager;
 import android.os.Bundle;
 
 import android.content.Context;
-import android.content.UriMatcher;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
-
-import android.util.Log;
 
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
@@ -47,8 +43,6 @@ import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
-import android.widget.TextView;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.view.View;
@@ -71,6 +65,9 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 	public static final int MENU_ITEM_WAKE = Menu.FIRST;
 	public static final int MENU_ITEM_DELETE = Menu.FIRST + 1;
+	static final String CHECK_FOR_UPDATE_PREFS_KEY = "check_for_update";
+	private static final String LAST_UPDATE_PREFS_KEY = "last_update";
+	private static final String SORT_MODE_PREFS_KEY = "sort_mode";
 
 	private static int _editModeID = 0;
 	private static boolean typingMode = false;
@@ -150,19 +147,17 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 
 		// preferences
-		SharedPreferences settings = getSharedPreferences(TAG, 0);
-		SharedPreferences.Editor editor;
+		final SharedPreferences settings = getSharedPreferences(TAG, 0);
 
 		// clean up old preferences
-		if(settings.contains("check_for_update") == true) {
-			editor = settings.edit();
-			editor.remove("check_for_update");
-			editor.remove("last_update");
-			editor.commit();
+		if(settings.contains(CHECK_FOR_UPDATE_PREFS_KEY)) {
+			settings.edit().remove(CHECK_FOR_UPDATE_PREFS_KEY)
+					.remove(LAST_UPDATE_PREFS_KEY)
+					.apply();
 		}
 
 		// load our sort mode
-		sort_mode = settings.getInt("sort_mode", CREATED);
+		sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, CREATED);
 
 
 		// grab the history ListView
@@ -193,18 +188,18 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 		switch (sort_mode) {
 		case CREATED:
-			mi = (MenuItem) menu.findItem(R.id.menu_created);
+			mi = menu.findItem(R.id.menu_created);
 			break;
 		case LAST_USED:
-			mi = (MenuItem) menu.findItem(R.id.menu_lastused);
+			mi = menu.findItem(R.id.menu_lastused);
 			break;
 		case USED_COUNT:
-			mi = (MenuItem) menu.findItem(R.id.menu_usedcount);
+			mi = menu.findItem(R.id.menu_usedcount);
 			break;
 		}
 
 		// toggle menuitem
-		mi.setChecked(true);
+		if(mi!=null) mi.setChecked(true);
 		return true;
 	}
 
@@ -229,7 +224,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 		// save to preferences
 		SharedPreferences.Editor editor = getSharedPreferences(TAG, 0).edit();
-		editor.putInt("sort_mode", sort_mode);
+		editor.putInt(SORT_MODE_PREFS_KEY, sort_mode);
 		editor.commit();
 
 		// rebind the history list
@@ -285,7 +280,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 				}
 
 			}else{
-				String formattedMac = null;
+				String formattedMac;
 
 				try {
 					// validate and clean our mac address
@@ -307,7 +302,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 			typingMode = false;
 
 			// switch back to the history tab
-			if(WakeOnLanActivity.isTablet == true) {
+			if(WakeOnLanActivity.isTablet) {
 				th.setCurrentTab(0);
 			}
 
@@ -329,7 +324,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 				typingMode = false;
 
 				// switch back to the history tab
-				if(WakeOnLanActivity.isTablet == true) {
+				if(WakeOnLanActivity.isTablet) {
 					th.setCurrentTab(0);
 				}
 			}
@@ -344,7 +339,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 		}else if(tabId.equals("tab_history")) {
 			// set form back to defaults, if typing mode has ended (button was clicked)
-			if(typingMode == false) {
+			if(!typingMode) {
 				EditText vtitle = (EditText)findViewById(R.id.title);
 				EditText vmac = (EditText)findViewById(R.id.mac);
 				EditText vip = (EditText)findViewById(R.id.ip);
@@ -370,7 +365,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 	public void onFocusChange(View v, boolean hasFocus)
 	{
 		// validate mac address on field exit
-		if(hasFocus == false) {
+		if(!hasFocus) {
 			EditText vmac = (EditText)v;
 
 			try {
@@ -396,7 +391,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 	public static String sendPacket(Context context,String title, String mac, String ip, int port)
 	{
-		String formattedMac = null;
+		String formattedMac;
 
 		try {
 			formattedMac = MagicPacket.send(mac, ip, port);
@@ -435,7 +430,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 
 		switch (mi.getItemId()) {
 		case R.id.menu_wake:
-			String mac = sendPacket(item);
+			sendPacket(item);
 
 			// update used count in DB
 			if(sendPacket(item) != null) {
@@ -468,7 +463,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 			Button cancelEdit = (Button)findViewById(R.id.clear_wake);
 			cancelEdit.setText(R.string.button_cancel);
 
-			if(WakeOnLanActivity.isTablet == true) {
+			if(WakeOnLanActivity.isTablet) {
 				th.setCurrentTab(1);
 			}
 			return true;
