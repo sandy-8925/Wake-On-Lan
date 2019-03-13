@@ -7,3 +7,8 @@ R.java
 build.xml
 .gradle/*
 app/build/*
+.idea/
+.idea/*
+app/app.iml
+*.iml
+
