@@ -4,9 +4,8 @@ android {
     defaultConfig {
         applicationId "net.mafro.android.wakeonlan"
         minSdkVersion 15
-        targetSdkVersion 19
-        compileSdkVersion 19
-        buildToolsVersion "28.0.3"
+        targetSdkVersion 28
+        compileSdkVersion 28
     }
 
     buildTypes {
