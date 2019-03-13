@@ -28,7 +28,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan;
 
-import android.app.Activity;
 import android.app.LocalActivityManager;
 
 import android.os.Bundle;
@@ -54,11 +53,13 @@ import android.view.MenuItem;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 
 /**
  *	@desc	Base activity, handles all UI events except history ListView clicks
  */
-public class WakeOnLanActivity extends Activity implements OnClickListener, OnTabChangeListener, OnFocusChangeListener
+public class WakeOnLanActivity extends AppCompatActivity implements OnClickListener, OnTabChangeListener, OnFocusChangeListener
 {
 
 	public static final String TAG = "WakeOnLan";
@@ -104,7 +105,7 @@ public class WakeOnLanActivity extends Activity implements OnClickListener, OnTa
 		setContentView(R.layout.main);
 
 		// configure tabs
-		th = (TabHost)findViewById(R.id.tabhost);
+		th = findViewById(R.id.tabhost);
 
 		// tabs only exist in phone layouts
 		if(th != null) {
