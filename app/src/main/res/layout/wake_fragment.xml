@@ -13,6 +13,7 @@
         android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/wf_reference_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/title"
@@ -22,48 +23,70 @@
             <EditText
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/wf_reference_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                />
 
             <TextView
+                android:id="@+id/wf_macaddr_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mac" />
+                android:text="@string/mac"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                />
             <EditText
                 android:id="@+id/mac"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/wf_macaddr_tv"
+                />
 
             <TextView
+                android:id="@+id/wf_hnip_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/ip" />
+                android:text="@string/ip"
+                app:layout_constraintTop_toBottomOf="@id/mac"
+                />
             <EditText
                 android:id="@+id/ip"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/wf_hnip_tv"
+                />
 
             <TextView
+                android:id="@+id/wf_port_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/port" />
+                android:text="@string/port"
+                app:layout_constraintTop_toBottomOf="@id/ip"
+                />
             <EditText
                 android:id="@+id/port"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/wf_port_tv"
+                />
 
                 <Button
                     android:id="@+id/clear_wake"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:text="@string/button_clear" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:text="@string/button_clear"
+                    app:layout_constraintTop_toBottomOf="@id/port"
+                    />
                 <Button
                     android:id="@+id/send_wake"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="right"
-                    android:text="@string/button_wake" />
+                    android:text="@string/button_wake"
+                    app:layout_constraintTop_toTopOf="@id/clear_wake"
+                    app:layout_constraintStart_toEndOf="@id/clear_wake"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
