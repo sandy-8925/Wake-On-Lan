@@ -33,42 +33,39 @@ import android.app.LocalActivityManager;
 import android.os.Bundle;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
 
+import net.mafro.android.wakeonlan.databinding.ActivityMainBinding;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 
 /**
  *	@desc	Base activity, handles all UI events except history ListView clicks
  */
-public class WakeOnLanActivity extends AppCompatActivity implements OnClickListener, OnTabChangeListener, OnFocusChangeListener
+public class WakeOnLanActivity extends AppCompatActivity implements OnTabChangeListener
 {
-
 	public static final String TAG = "WakeOnLan";
 
 	public static final int MENU_ITEM_WAKE = Menu.FIRST;
 	public static final int MENU_ITEM_DELETE = Menu.FIRST + 1;
-	static final String CHECK_FOR_UPDATE_PREFS_KEY = "check_for_update";
-	private static final String LAST_UPDATE_PREFS_KEY = "last_update";
-	private static final String SORT_MODE_PREFS_KEY = "sort_mode";
+	static final String SORT_MODE_PREFS_KEY = "sort_mode";
 
 	private static int _editModeID = 0;
 	private static boolean typingMode = false;
@@ -76,7 +73,6 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 	private static boolean isTablet = false;
 	private TabHost th;
 
-	private HistoryListHandler histHandler;
 	private static int sort_mode;
 
 	public static final int CREATED = 0;
@@ -96,14 +92,20 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 	};
 
 	private static Toast notification;
-
+	private ActivityMainBinding binding;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+		binding.wolaViewpager.setAdapter(new TabsAdapter(getSupportFragmentManager(), WakeOnLanActivity.this));
+		binding.wolaTablayout.setupWithViewPager(binding.wolaViewpager);
+//		doStuff();
+	}
 
+	private void doStuff() {
 		// configure tabs
 		th = findViewById(R.id.tabhost);
 
@@ -123,212 +125,10 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 			th.setOnTabChangedListener(this);
 		}else{
 			// set the background colour of the titles
-			TextView historytitle = (TextView)findViewById(R.id.historytitle);
+			TextView historytitle = findViewById(R.id.historytitle);
 			historytitle.setBackgroundColor(0xFF999999);
-			TextView waketitle = (TextView)findViewById(R.id.waketitle);
+			TextView waketitle = findViewById(R.id.waketitle);
 			waketitle.setBackgroundColor(0xFF999999);
-		}
-
-		// set defaults on Wake tab
-		EditText vip = (EditText)findViewById(R.id.ip);
-		vip.setText(MagicPacket.BROADCAST);
-		EditText vport = (EditText)findViewById(R.id.port);
-		vport.setText(Integer.toString(MagicPacket.PORT));
-
-
-		// register self as listener for wake button
-		Button sendWake = (Button)findViewById(R.id.send_wake);
-		sendWake.setOnClickListener(this);
-		Button clearWake = (Button)findViewById(R.id.clear_wake);
-		clearWake.setOnClickListener(this);
-
-		// register self as mac address field focus change listener
-		EditText vmac = (EditText)findViewById(R.id.mac);
-		vmac.setOnFocusChangeListener(this);
-
-
-		// preferences
-		final SharedPreferences settings = getSharedPreferences(TAG, 0);
-
-		// clean up old preferences
-		if(settings.contains(CHECK_FOR_UPDATE_PREFS_KEY)) {
-			settings.edit().remove(CHECK_FOR_UPDATE_PREFS_KEY)
-					.remove(LAST_UPDATE_PREFS_KEY)
-					.apply();
-		}
-
-		// load our sort mode
-		sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, CREATED);
-
-
-		// grab the history ListView
-		ListView lv = (ListView)findViewById(R.id.history);
-
-		// load history handler (deals with cursor and history ListView)
-		histHandler = new HistoryListHandler(this, lv);
-		histHandler.bind(sort_mode);
-		
-		// add listener to get on click events
-		histHandler.addHistoryListClickListener(new HistoryListClickListener() {
-			public void onClick(HistoryItem item) {
-				onHistoryItemClick(item);
-			}
-		});
-
-		// register main Activity as context menu handler
-		registerForContextMenu(lv);
-	}
-
-
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_menu, menu);
-
-		MenuItem mi = null;
-
-		switch (sort_mode) {
-		case CREATED:
-			mi = menu.findItem(R.id.menu_created);
-			break;
-		case LAST_USED:
-			mi = menu.findItem(R.id.menu_lastused);
-			break;
-		case USED_COUNT:
-			mi = menu.findItem(R.id.menu_usedcount);
-			break;
-		}
-
-		// toggle menuitem
-		if(mi!=null) mi.setChecked(true);
-		return true;
-	}
-
-	public boolean onOptionsItemSelected(MenuItem mi)
-	{
-		switch (mi.getItemId()) {
-		case R.id.menu_created:
-			sort_mode = CREATED;
-			break;
-		case R.id.menu_lastused:
-			sort_mode = LAST_USED;
-			break;
-		case R.id.menu_usedcount:
-			sort_mode = USED_COUNT;
-			break;
-		case R.id.menu_sortby:
-			return false;
-		}
-
-		// toggle menuitem
-		mi.setChecked(true);
-
-		// save to preferences
-		SharedPreferences.Editor editor = getSharedPreferences(TAG, 0).edit();
-		editor.putInt(SORT_MODE_PREFS_KEY, sort_mode);
-		editor.commit();
-
-		// rebind the history list
-		histHandler.bind(sort_mode);
-		return true;
-	}
-
-
-	public void onClick(View v)
-	{
-		if(v.getId() == R.id.send_wake) {
-			EditText vtitle = (EditText)findViewById(R.id.title);
-			EditText vmac = (EditText)findViewById(R.id.mac);
-			EditText vip = (EditText)findViewById(R.id.ip);
-			EditText vport = (EditText)findViewById(R.id.port);
-
-			String title = vtitle.getText().toString().trim();
-			String mac = vmac.getText().toString().trim();
-
-			// default IP and port unless set on form
-			String ip = MagicPacket.BROADCAST;
-			if(!vip.getText().toString().trim().equals("")) {
-				ip = vip.getText().toString().trim();
-			}
-
-			int port = MagicPacket.PORT;
-			if(!vport.getText().toString().trim().equals("")) {
-				try {
-					port = Integer.valueOf(vport.getText().toString().trim());
-				}catch(NumberFormatException nfe) {
-					notifyUser("Bad port number", WakeOnLanActivity.this);
-					return;
-				}
-			}
-
-			// update form with cleaned variables
-			vtitle.setText(title);
-			vmac.setText(mac);
-			vip.setText(ip);
-			vport.setText(Integer.toString(port));
-
-			// check for edit mode - no send of packet
-			if(_editModeID == 0) {
-				// send the magic packet
-				String formattedMac = sendPacket(WakeOnLanActivity.this, title, mac, ip, port);
-
-				// on successful send, add to history list
-				if(formattedMac != null) {
-					histHandler.addToHistory(title, formattedMac, ip, port);
-				}else{
-					// return on sending failed
-					return;
-				}
-
-			}else{
-				String formattedMac;
-
-				try {
-					// validate and clean our mac address
-					formattedMac = MagicPacket.cleanMac(mac);
-
-				}catch(IllegalArgumentException iae) {
-					notifyUser(iae.getMessage(), WakeOnLanActivity.this);
-					return;
-				}
-
-				// update existing history entry
-				histHandler.updateHistory(_editModeID, title, formattedMac, ip, port);
-
-				// reset now edit mode complete
-				_editModeID = 0;
-			}
-
-			// finished typing (either send or edit)
-			typingMode = false;
-
-			// switch back to the history tab
-			if(WakeOnLanActivity.isTablet) {
-				th.setCurrentTab(0);
-			}
-
-		}else if(v.getId() == R.id.clear_wake) {
-			if(_editModeID == 0) {
-				// clear the form
-				EditText vtitle = (EditText)findViewById(R.id.title);
-				vtitle.setText(null);
-				EditText vmac = (EditText)findViewById(R.id.mac);
-				vmac.setText(null);
-				vmac.setError(null);
-				EditText vip = (EditText)findViewById(R.id.ip);
-				vip.setText(null);
-				EditText vport = (EditText)findViewById(R.id.port);
-				vport.setText(null);
-			}else{
-				// cancel editing
-				_editModeID = 0;
-				typingMode = false;
-
-				// switch back to the history tab
-				if(WakeOnLanActivity.isTablet) {
-					th.setCurrentTab(0);
-				}
-			}
 		}
 	}
 
@@ -341,10 +141,10 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 		}else if(tabId.equals("tab_history")) {
 			// set form back to defaults, if typing mode has ended (button was clicked)
 			if(!typingMode) {
-				EditText vtitle = (EditText)findViewById(R.id.title);
-				EditText vmac = (EditText)findViewById(R.id.mac);
-				EditText vip = (EditText)findViewById(R.id.ip);
-				EditText vport = (EditText)findViewById(R.id.port);
+				EditText vtitle = findViewById(R.id.title);
+				EditText vmac = findViewById(R.id.mac);
+				EditText vip = findViewById(R.id.ip);
+				EditText vport = findViewById(R.id.port);
 
 				vtitle.setText(null);
 				vmac.setText(null);
@@ -355,39 +155,17 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 				vmac.setError(null);
 
 				// reset both our button's text
-				Button sendWake = (Button)findViewById(R.id.send_wake);
+				Button sendWake = findViewById(R.id.send_wake);
 				sendWake.setText(R.string.button_wake);
-				Button clearWake = (Button)findViewById(R.id.clear_wake);
+				Button clearWake = findViewById(R.id.clear_wake);
 				clearWake.setText(R.string.button_clear);
 			}
 		}
 	}
 
-	public void onFocusChange(View v, boolean hasFocus)
+	public static String sendPacket(HistoryItem item, Context context)
 	{
-		// validate mac address on field exit
-		if(!hasFocus) {
-			EditText vmac = (EditText)v;
-
-			try {
-				// validate our mac address
-				String mac = vmac.getText().toString();
-				if(mac.length() > 0) {
-					mac = MagicPacket.cleanMac(mac);
-					vmac.setText(mac);
-				}
-				vmac.setError(null);
-
-			}catch(IllegalArgumentException iae) {
-				vmac.setError(getString(R.string.invalid_mac));
-			}
-		}
-	}
-
-
-	public String sendPacket(HistoryItem item)
-	{
-		return sendPacket(WakeOnLanActivity.this, item.title, item.mac, item.ip, item.port);
+		return sendPacket(context, item.title, item.mac, item.ip, item.port);
 	}
 
 	public static String sendPacket(Context context,String title, String mac, String ip, int port)
@@ -412,79 +190,6 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 	}
 
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
-	{
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.history_menu, menu);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem mi)
-	{
-		// extract data about clicked item
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) mi.getMenuInfo();
-
-		// extract history item
-		HistoryItem item = histHandler.getItem(info.position);
-
-		switch (mi.getItemId()) {
-		case R.id.menu_wake:
-			sendPacket(item);
-
-			// update used count in DB
-			if(sendPacket(item) != null) {
-				histHandler.incrementHistory(item.id);
-			}
-			return true;
-
-		case R.id.menu_edit:
-			// save the id of record being edited
-			_editModeID = item.id;
-
-			// fire this record into edit mode in the next tab
-			EditText vtitle = (EditText)findViewById(R.id.title);
-			EditText vmac = (EditText)findViewById(R.id.mac);
-			EditText vip = (EditText)findViewById(R.id.ip);
-			EditText vport = (EditText)findViewById(R.id.port);
-
-			// display editing data
-			vtitle.setText(item.title);
-			vmac.setText(item.mac);
-			vip.setText(item.ip);
-			vport.setText(Integer.toString(item.port));
-
-			// clear any previous errors
-			vmac.setError(null);
-
-			// change text on both our buttons
-			Button saveEdit = (Button)findViewById(R.id.send_wake);
-			saveEdit.setText(R.string.button_save);
-			Button cancelEdit = (Button)findViewById(R.id.clear_wake);
-			cancelEdit.setText(R.string.button_cancel);
-
-			if(WakeOnLanActivity.isTablet) {
-				th.setCurrentTab(1);
-			}
-			return true;
-
-		case R.id.menu_delete:
-			histHandler.deleteHistory(item.id);
-			return true;
-
-		default:
-			return super.onContextItemSelected(mi);
-		}
-	}
-
-	private void onHistoryItemClick(HistoryItem item) {
-		String mac = sendPacket(item);
-		if(mac != null) {
-			histHandler.incrementHistory(item.id);
-		}
-	}
-
 	public static void notifyUser(String message, Context context)
 	{
 		if(notification != null) {
@@ -496,4 +201,31 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnClickListe
 		}
 	}
 
+	private static class TabsAdapter extends FragmentStatePagerAdapter {
+
+        private final Context context;
+
+        TabsAdapter(@NonNull FragmentManager fm, @NonNull Context context) {
+			super(fm);
+            this.context = context;
+        }
+
+		@Override
+		public Fragment getItem(int position) {
+			TabFragments tabFragmentEnum = TabFragments.values()[position];
+			return Fragment.instantiate(context, tabFragmentEnum.getClazz().getName());
+		}
+
+		@Override
+		public int getCount() {
+			return TabFragments.values().length;
+		}
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return context.getResources().getString(TabFragments.values()[position].getTitle());
+        }
+    }
 }
+

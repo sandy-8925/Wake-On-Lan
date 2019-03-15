@@ -74,14 +74,14 @@ public class HistoryListHandler implements OnItemClickListener
 		History.Items.IS_STARRED
 	};
 
-	private ListView view = null;
+	private ListView view;
 
 
 	public HistoryListHandler(Activity parent, ListView view)
 	{
 		this.parent = parent;
 		this.view = view;
-		this.listeners = new ArrayList<HistoryListClickListener>();
+		this.listeners = new ArrayList<>();
 	}
 
 	public void bind(int sort_mode)
@@ -136,7 +136,7 @@ public class HistoryListHandler implements OnItemClickListener
 		return getItem(this.cursor);
 	}
 
-	public static HistoryItem getItem(Cursor cursor)
+	private static HistoryItem getItem(Cursor cursor)
 	{
 		int idColumn = cursor.getColumnIndex(History.Items._ID);
 		int titleColumn = cursor.getColumnIndex(History.Items.TITLE);
@@ -166,7 +166,7 @@ public class HistoryListHandler implements OnItemClickListener
 		}
 
 		// create only if the item doesn't exist
-		if(exists == false) {
+		if(!exists) {
 			ContentValues values = new ContentValues(4);
 			values.put(History.Items.TITLE, title);
 			values.put(History.Items.MAC, mac);

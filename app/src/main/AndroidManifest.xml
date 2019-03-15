@@ -15,7 +15,8 @@
 
     <application android:label="@string/app_name"
 				 android:icon="@drawable/icon"
-				 android:description="@string/app_desc">
+				 android:description="@string/app_desc"
+ 				 android:name=".WakeOnLanApp" >
 
 		<activity android:name=".WakeOnLanActivity"
 				  android:label="@string/app_name"
