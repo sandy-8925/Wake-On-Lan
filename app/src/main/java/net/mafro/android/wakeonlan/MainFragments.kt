@@ -161,51 +161,50 @@ class WakeFragment : Fragment() {
         }
     }
 
-    private val wakeClickListener: View.OnClickListener = View.OnClickListener { v ->
-        if (v.id == R.id.send_wake) {
-            val vtitle = binding.title
-            val vmac = binding.mac
-            val vip = binding.ip
-            val vport = binding.port
+    private val sendClickListener: View.OnClickListener = View.OnClickListener {
+        val vtitle = binding.title
+        val vmac = binding.mac
+        val vip = binding.ip
+        val vport = binding.port
 
-            val title = vtitle.text.toString().trim { it <= ' ' }
-            val mac = vmac.text.toString().trim { it <= ' ' }
+        val title = vtitle.text.toString().trim { it <= ' ' }
+        val mac = vmac.text.toString().trim { it <= ' ' }
 
-            // default IP and port unless set on form
-            var ip = MagicPacket.BROADCAST
-            if (vip.text.toString().trim { it <= ' ' } != "") {
-                ip = vip.text.toString().trim { it <= ' ' }
-            }
+        // default IP and port unless set on form
+        var ip = MagicPacket.BROADCAST
+        if (vip.text.toString().trim { it <= ' ' } != "") {
+            ip = vip.text.toString().trim { it <= ' ' }
+        }
 
-            var port = MagicPacket.PORT
-            if (vport.text.toString().trim { it <= ' ' } != "") {
-                try {
-                    port = Integer.valueOf(vport.text.toString().trim { it <= ' ' })
-                } catch (nfe: NumberFormatException) {
-                    notifyUser("Bad port number", requireContext())
-                    return@OnClickListener
-                }
-            }
-
-            // update form with cleaned variables
-            vtitle.setText(title)
-            vmac.setText(mac)
-            vip.setText(ip)
-            vport.setText(Integer.toString(port))
-
-            // send the magic packet
-            val formattedMac = sendPacket(requireContext(), title, mac, ip, port)
-
-            // on successful send, add to history list
-            if (formattedMac != null) {
-                //TODO: persist history record
-//                histHandler.addToHistory(title, formattedMac, ip, port)
-            } else {
-                // return on sending failed
+        var port = MagicPacket.PORT
+        if (vport.text.toString().trim { it <= ' ' } != "") {
+            try {
+                port = Integer.valueOf(vport.text.toString().trim { it <= ' ' })
+            } catch (nfe: NumberFormatException) {
+                notifyUser("Bad port number", requireContext())
                 return@OnClickListener
             }
+        }
 
-            //TODO: Move this block of code over to history fragment
+        // update form with cleaned variables
+        vtitle.setText(title)
+        vmac.setText(mac)
+        vip.setText(ip)
+        vport.setText(Integer.toString(port))
+
+        // send the magic packet
+        val formattedMac = sendPacket(requireContext(), title, mac, ip, port)
+
+        // on successful send, add to history list
+        if (formattedMac != null) {
+            //TODO: persist history record in a separate click listener for a separate button
+//                histHandler.addToHistory(title, formattedMac, ip, port)
+        } else {
+            // return on sending failed
+            return@OnClickListener
+        }
+
+        //TODO: Move this block of code over to history fragment
 //            else {
 //                val formattedMac: String
 //
@@ -225,22 +224,22 @@ class WakeFragment : Fragment() {
 //                _editModeID = 0
 //            }
 
-            // finished typing (either send or edit)
+        // finished typing (either send or edit)
 //            typingMode = false
 
-            // switch back to the history tab
+        // switch back to the history tab
 //            if (WakeOnLanActivity.isTablet) {
 //                th.setCurrentTab(0)
 //            }
+    }
 
-        } else if (v.id == R.id.clear_wake) {
-                // clear the form
-            binding.title.text = null
-            binding.mac.text = null
-                binding.mac.error = null
-            binding.ip.text = null
-            binding.port.text = null
-        }
+    private val clearClickListener: View.OnClickListener = View.OnClickListener {
+        // clear the form
+        binding.title.text = null
+        binding.mac.text = null
+        binding.mac.error = null
+        binding.ip.text = null
+        binding.port.text = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -250,8 +249,8 @@ class WakeFragment : Fragment() {
         binding.port.setText(Integer.toString(MagicPacket.PORT))
 
         // register self as listener for wake button
-        binding.sendWake.setOnClickListener(wakeClickListener)
-        binding.clearWake.setOnClickListener(wakeClickListener)
+        binding.sendWake.setOnClickListener(sendClickListener)
+        binding.clearWake.setOnClickListener(clearClickListener)
 
         // register self as mac address field focus change listener
         binding.mac.onFocusChangeListener = macFocusChangeListener
