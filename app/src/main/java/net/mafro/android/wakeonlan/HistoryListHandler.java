@@ -29,40 +29,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan;
 
 import android.app.Activity;
-
 import android.content.ContentValues;
-
 import android.database.Cursor;
-
-import android.util.Log;
-
-import android.widget.ListView;
+import android.net.Uri;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
-import android.view.View;
-
-import android.net.Uri;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
- *	@desc	Class handles all functions of the history ListView
+ *	Class handles all functions of the history ListView
  */
 public class HistoryListHandler implements OnItemClickListener
 {
-
-	public static final String TAG = "HistoryListHandler";
-
 	private Activity parent;
 	private Cursor cursor;
-	private HistoryAdapter adapter;
 	private List<HistoryListClickListener> listeners;
 
 
-	public static final String[] PROJECTION = new String[]
+	private static final String[] PROJECTION = new String[]
 	{
 		History.Items._ID,
 		History.Items.TITLE,
@@ -107,7 +96,7 @@ public class HistoryListHandler implements OnItemClickListener
 
 		// load History cursor via custom ResourceAdapter
 		cursor = parent.getContentResolver().query(History.Items.CONTENT_URI, PROJECTION, null, null, orderBy);
-		adapter = new HistoryAdapter(parent, cursor, showStars);
+		HistoryAdapter adapter = new HistoryAdapter(parent, cursor, showStars);
 
 		// register self as listener for item clicks
 		view.setOnItemClickListener(this);
