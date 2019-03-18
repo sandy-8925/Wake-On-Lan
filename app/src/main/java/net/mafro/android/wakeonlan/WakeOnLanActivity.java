@@ -41,8 +41,6 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
 
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Menu;
 
 import net.mafro.android.wakeonlan.databinding.ActivityMainBinding;
@@ -155,7 +153,7 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnTabChangeL
 				vmac.setError(null);
 
 				// reset both our button's text
-				Button sendWake = findViewById(R.id.send_wake);
+				Button sendWake = findViewById(R.id.test_wake);
 				sendWake.setText(R.string.button_wake);
 				Button clearWake = findViewById(R.id.clear_wake);
 				clearWake.setText(R.string.button_clear);

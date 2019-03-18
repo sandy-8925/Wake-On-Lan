@@ -79,12 +79,22 @@
                     app:layout_constraintTop_toBottomOf="@id/port"
                     />
                 <Button
-                    android:id="@+id/send_wake"
+                    android:id="@+id/test_wake"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/button_wake"
-                    app:layout_constraintTop_toTopOf="@id/clear_wake"
-                    app:layout_constraintStart_toEndOf="@id/clear_wake"
+                    android:text="@string/test"
+                    app:layout_constraintTop_toBottomOf="@id/clear_wake"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/save_wake"
+                    />
+
+                <Button
+                    android:id="@+id/save_wake"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
+                    app:layout_constraintTop_toTopOf="@id/test_wake"
+                    app:layout_constraintStart_toEndOf="@id/test_wake"
                     app:layout_constraintEnd_toEndOf="parent"
                     />
 

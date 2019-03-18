@@ -161,7 +161,7 @@ class WakeFragment : Fragment() {
         }
     }
 
-    private val sendClickListener: View.OnClickListener = View.OnClickListener {
+    private val testClickListener: View.OnClickListener = View.OnClickListener {
         val vtitle = binding.title
         val vmac = binding.mac
         val vip = binding.ip
@@ -194,15 +194,8 @@ class WakeFragment : Fragment() {
 
         // send the magic packet
         val formattedMac = sendPacket(requireContext(), title, mac, ip, port)
-
-        // on successful send, add to history list
-        if (formattedMac != null) {
-            //TODO: persist history record in a separate click listener for a separate button
-//                histHandler.addToHistory(title, formattedMac, ip, port)
-        } else {
-            // return on sending failed
-            return@OnClickListener
-        }
+        // return on sending failed
+       formattedMac ?: return@OnClickListener
 
         //TODO: Move this block of code over to history fragment
 //            else {
@@ -242,6 +235,11 @@ class WakeFragment : Fragment() {
         binding.port.text = null
     }
 
+    private val saveClickListener: View.OnClickListener = View.OnClickListener {
+        //TODO: clear form and persist history record
+        //histHandler.addToHistory(title, formattedMac, ip, port)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // set defaults on Wake tab
@@ -249,8 +247,9 @@ class WakeFragment : Fragment() {
         binding.port.setText(Integer.toString(MagicPacket.PORT))
 
         // register self as listener for wake button
-        binding.sendWake.setOnClickListener(sendClickListener)
+        binding.testWake.setOnClickListener(testClickListener)
         binding.clearWake.setOnClickListener(clearClickListener)
+        binding.saveWake.setOnClickListener(saveClickListener)
 
         // register self as mac address field focus change listener
         binding.mac.onFocusChangeListener = macFocusChangeListener
