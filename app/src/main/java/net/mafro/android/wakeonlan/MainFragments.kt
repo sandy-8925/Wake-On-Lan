@@ -50,7 +50,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun onHistoryItemClick(item: HistoryItem) {
-        val mac = sendPacket(item, requireContext())
+        val mac = MagicPacket.sendPacket(requireContext(), item)
         if (mac != null) {
             histHandler.incrementHistory(item.id.toLong())
         }
@@ -110,7 +110,7 @@ class HistoryFragment : Fragment() {
 
         when (mi.itemId) {
             R.id.menu_wake -> {
-                val result = sendPacket(item, requireContext())
+                val result = MagicPacket.sendPacket(requireContext(), item)
                 // update used count in DB
                 if (result != null) {
                     histHandler.incrementHistory(item.id.toLong())
@@ -193,7 +193,7 @@ class WakeFragment : Fragment() {
         vport.setText(Integer.toString(port))
 
         // send the magic packet
-        val formattedMac = sendPacket(requireContext(), title, mac, ip, port)
+        val formattedMac = MagicPacket.sendPacket(requireContext(), title, mac, ip, port)
         // return on sending failed
        formattedMac ?: return@OnClickListener
 

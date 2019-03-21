@@ -28,6 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -44,6 +45,9 @@ import java.lang.StringBuffer;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
+
 
 /**
  *	@desc	Static WOL magic packet class
@@ -56,11 +60,13 @@ public class MagicPacket
 	static final int PORT = 9;
 	private static final char SEPARATOR = ':';
 
+	@WorkerThread
 	private static String send(String mac, String ip) throws IOException, IllegalArgumentException
 	{
 		return send(mac, ip, PORT);
 	}
 
+	@WorkerThread
 	static String send(String mac, String ip, int port) throws IOException, IllegalArgumentException
 	{
 		// validate MAC and chop into array
@@ -177,4 +183,28 @@ public class MagicPacket
 		}
 	}
 
+	public static String sendPacket(@NonNull Context context, @NonNull HistoryItem item)
+	{
+		return sendPacket(context, item.title, item.mac, item.ip, item.port);
+	}
+
+	public static String sendPacket(@NonNull Context context, @NonNull String title, @NonNull String mac, @NonNull String ip, @NonNull int port)
+	{
+		String formattedMac;
+
+		try {
+			formattedMac = send(mac, ip, port);
+		}catch(IllegalArgumentException iae) {
+			WakeOnLanActivity.notifyUser(context.getString(R.string.send_failed)+":\n"+iae.getMessage(), context);
+			return null;
+
+		}catch(Exception e) {
+			WakeOnLanActivity.notifyUser(context.getString(R.string.send_failed), context);
+			return null;
+		}
+
+		// display sent message to user
+		WakeOnLanActivity.notifyUser(context.getString(R.string.packet_sent)+" to "+title, context);
+		return formattedMac;
+	}
 }

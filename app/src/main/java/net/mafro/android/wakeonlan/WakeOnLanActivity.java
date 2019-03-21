@@ -45,6 +45,7 @@ import android.view.Menu;
 
 import net.mafro.android.wakeonlan.databinding.ActivityMainBinding;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -161,34 +162,7 @@ public class WakeOnLanActivity extends AppCompatActivity implements OnTabChangeL
 		}
 	}
 
-	public static String sendPacket(HistoryItem item, Context context)
-	{
-		return sendPacket(context, item.title, item.mac, item.ip, item.port);
-	}
-
-	public static String sendPacket(Context context,String title, String mac, String ip, int port)
-	{
-		String formattedMac;
-
-		try {
-			formattedMac = MagicPacket.send(mac, ip, port);
-
-		}catch(IllegalArgumentException iae) {
-			notifyUser(context.getString(R.string.send_failed)+":\n"+iae.getMessage(), context);
-			return null;
-
-		}catch(Exception e) {
-			notifyUser(context.getString(R.string.send_failed), context);
-			return null;
-		}
-
-		// display sent message to user
-		notifyUser(context.getString(R.string.packet_sent)+" to "+title, context);
-		return formattedMac;
-	}
-
-
-	public static void notifyUser(String message, Context context)
+	public static void notifyUser(@NonNull String message, @NonNull Context context)
 	{
 		if(notification != null) {
 			notification.setText(message);

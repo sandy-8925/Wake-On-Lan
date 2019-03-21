@@ -30,8 +30,6 @@ package net.mafro.android.wakeonlan;
 
 import android.app.PendingIntent;
 
-import android.database.Cursor;
-
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 
@@ -42,7 +40,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.widget.RemoteViews;
-import android.util.Log;
 
 /**
  * @desc	This class is used to setup the home screen widget, as well as handle click events
@@ -99,7 +96,7 @@ public class WidgetProvider extends AppWidgetProvider
 			HistoryItem item = loadItemPref(context, settings, widget_id);
 
 			// send the packet
-			WakeOnLanActivity.sendPacket(context, item.title, item.mac, item.ip, item.port);
+			MagicPacket.sendPacket(context, item.title, item.mac, item.ip, item.port);
 		}
 	}
 
