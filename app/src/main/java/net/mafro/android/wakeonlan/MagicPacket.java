@@ -29,24 +29,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.IOException;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
-import java.net.SocketException;
 
 import java.lang.IllegalArgumentException;
 import java.lang.StringBuffer;
 
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -183,28 +186,70 @@ public class MagicPacket
 		}
 	}
 
-	public static String sendPacket(@NonNull Context context, @NonNull HistoryItem item)
+	public static Single<String> createSendPacketSingle(@NonNull Context context, @NonNull HistoryItem item)
 	{
-		return sendPacket(context, item.title, item.mac, item.ip, item.port);
+		return createSendPacketSingle(context, item.title, item.mac, item.ip, item.port);
 	}
 
-	public static String sendPacket(@NonNull Context context, @NonNull String title, @NonNull String mac, @NonNull String ip, @NonNull int port)
+	public static void sendPacket(@NonNull final Context context, @NonNull final String title, @NonNull String mac, @NonNull String ip, @NonNull int port)
 	{
-		String formattedMac;
+		createSendPacketSingle(context, title, mac, ip, port)
+				.subscribe();
+	}
 
-		try {
-			formattedMac = send(mac, ip, port);
-		}catch(IllegalArgumentException iae) {
-			WakeOnLanActivity.notifyUser(context.getString(R.string.send_failed)+":\n"+iae.getMessage(), context);
-			return null;
+	static Single<String> createSendPacketSingle(@NonNull Context context, @NonNull String title, @NonNull String mac, @NonNull String ip, @Nullable int port) {
+		return Single.fromCallable(new MagicPacketCallable(mac, ip, port))
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.doOnError(new MagicPacketErrorAction(context))
+				.doOnSuccess(new MagicPacketSuccessAction(context, title));
+	}
 
-		}catch(Exception e) {
-			WakeOnLanActivity.notifyUser(context.getString(R.string.send_failed), context);
-			return null;
+	private static class MagicPacketSuccessAction implements Consumer<String> {
+		@NonNull private final Context context;
+		@NonNull private final String title;
+
+		private MagicPacketSuccessAction(@NonNull Context context, @NonNull String title) {
+			this.context = context;
+			this.title = title;
 		}
 
-		// display sent message to user
-		WakeOnLanActivity.notifyUser(context.getString(R.string.packet_sent)+" to "+title, context);
-		return formattedMac;
+		@Override
+		public void accept(String s) {
+			// display sent message to user
+			String msg = String.format("%s to %s", context.getString(R.string.packet_sent), title);
+			WakeOnLanActivity.notifyUser(msg, context);
+		}
+	}
+
+	private static class MagicPacketErrorAction implements io.reactivex.functions.Consumer<Throwable> {
+		@NonNull private Context context;
+
+		private MagicPacketErrorAction(@NonNull Context context) {
+			this.context = context;
+		}
+
+		@Override
+	public void accept(Throwable throwable) {
+		String msg = String.format("%s:\n%s", context.getString(R.string.send_failed), throwable.getMessage());
+		WakeOnLanActivity.notifyUser(msg, context);
+	}
+}
+
+	private static class MagicPacketCallable implements Callable<String> {
+		private String mac;
+		private String ip;
+		private int port;
+
+		private MagicPacketCallable(@NonNull String mac, @NonNull String ip, @NonNull int port) {
+			this.mac = mac;
+			this.ip = ip;
+			this.port = port;
+		}
+
+		@Override
+		public String call() throws IOException {
+			return send(mac, ip, port);
+		}
 	}
 }
