@@ -35,18 +35,15 @@ class HistoryFragment : Fragment() {
         // load our sort mode
         sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
 
-        // grab the history ListView
-        val lv = binding.history
-
         // load history handler (deals with cursor and history ListView)
-        histHandler = HistoryListHandler(requireActivity(), lv)
+        histHandler = HistoryListHandler(requireActivity(), binding.history)
         histHandler.bind(sort_mode)
 
         // add listener to get on click events
         histHandler.addHistoryListClickListener { item -> onHistoryItemClick(item) }
 
         // register main Activity as context menu handler
-        registerForContextMenu(lv)
+        registerForContextMenu(binding.history)
     }
 
     private fun onHistoryItemClick(item: HistoryItem) {
