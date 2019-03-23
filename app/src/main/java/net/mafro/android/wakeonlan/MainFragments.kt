@@ -19,7 +19,7 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
-    private var sort_mode: Int = 0
+    private var sort_mode: Int = WakeOnLanActivity.CREATED
     private lateinit var histHandler: HistoryListHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
