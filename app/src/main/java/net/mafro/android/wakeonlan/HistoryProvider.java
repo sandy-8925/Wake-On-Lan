@@ -161,25 +161,25 @@ public class HistoryProvider extends ContentProvider {
 			values = new ContentValues();
 		}
 
-		Long now = Long.valueOf(System.currentTimeMillis());
+		Long now = System.currentTimeMillis();
 
 		// make sure that the fields are all set
-		if(values.containsKey(History.Items.TITLE) == false) {
+		if(!values.containsKey(History.Items.TITLE)) {
 			values.put(History.Items.TITLE, "");
 		}
-		if(values.containsKey(History.Items.MAC) == false) {
+		if(!values.containsKey(History.Items.MAC)) {
 			values.put(History.Items.MAC, "");
 		}
-		if(values.containsKey(History.Items.IP) == false) {
+		if(!values.containsKey(History.Items.IP)) {
 			values.put(History.Items.IP, "");
 		}
-		if(values.containsKey(History.Items.PORT) == false) {
+		if(!values.containsKey(History.Items.PORT)) {
 			values.put(History.Items.PORT, "");
 		}
-		if(values.containsKey(History.Items.CREATED_DATE) == false) {
+		if(!values.containsKey(History.Items.CREATED_DATE)) {
 			values.put(History.Items.CREATED_DATE, now);
 		}
-		if(values.containsKey(History.Items.LAST_USED_DATE) == false) {
+		if(!values.containsKey(History.Items.LAST_USED_DATE)) {
 			values.put(History.Items.LAST_USED_DATE, now);
 		}
 
