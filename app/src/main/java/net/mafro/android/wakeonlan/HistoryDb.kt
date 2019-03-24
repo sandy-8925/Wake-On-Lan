@@ -1,0 +1,36 @@
+package net.mafro.android.wakeonlan
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+class History {
+    @PrimaryKey
+    @ColumnInfo(name = "_id")
+    var id : Int = 0
+
+    @ColumnInfo(name = "title")
+    var title : String = ""
+
+    @ColumnInfo(name = "mac")
+    lateinit var mac : String
+
+    @ColumnInfo(name = "ip")
+    lateinit var ip : String
+
+    @ColumnInfo(name = "port")
+    var port : Int = MagicPacket.PORT
+
+    @ColumnInfo(name = "created")
+    var createdDate : Int = 0
+
+    @ColumnInfo(name = "last_used")
+    var lastUsedDate : Int = 0
+
+    @ColumnInfo(name = "used_count")
+    var usedCount : Int = 1
+
+    @ColumnInfo(name = "is_starred")
+    var isStarred : Int = 0
+}
