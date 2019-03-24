@@ -47,9 +47,6 @@ import android.widget.RemoteViews;
 
 public class WidgetProvider extends AppWidgetProvider
 {
-
-	public static final String TAG = "WidgetProvider";
-
 	public static final String SETTINGS_PREFIX = "widget_";
 	public static final String WIDGET_ONCLICK = "net.mafro.android.wakeonlan.WidgetOnClick";
 
@@ -63,12 +60,9 @@ public class WidgetProvider extends AppWidgetProvider
 
 		SharedPreferences settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0);
 
-		final int N = appWidgetIds.length;
-		for(int i=0; i<N; i++) {
-			int widget_id = appWidgetIds[i];
-
-			HistoryItem item = loadItemPref(context, settings, widget_id);
-			if(item == null) {
+		for (int widget_id : appWidgetIds) {
+			HistoryItem item = loadItemPref(settings, widget_id);
+			if (item == null) {
 				// item or prefrences missing.
 				// TODO delete the widget probably (cant find a way to do this).
 				// maybe set the title of the widget to ERROR
@@ -83,7 +77,10 @@ public class WidgetProvider extends AppWidgetProvider
 	{
 		super.onReceive(context, intent);
 
-		if(intent.getAction().startsWith(WIDGET_ONCLICK)) {
+		final String intentAction = intent.getAction();
+		if(intentAction==null) return;
+
+		if(intentAction.startsWith(WIDGET_ONCLICK)) {
 			SharedPreferences settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0);
 
 			// get the widget id
@@ -93,7 +90,7 @@ public class WidgetProvider extends AppWidgetProvider
 			}
 
 			// get the HistoryItem associated with the widget_id
-			HistoryItem item = loadItemPref(context, settings, widget_id);
+			HistoryItem item = loadItemPref(settings, widget_id);
 
 			// send the packet
 			MagicPacket.sendPacket(context, item.title, item.mac, item.ip, item.port);
@@ -107,9 +104,8 @@ public class WidgetProvider extends AppWidgetProvider
 
 		SharedPreferences settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0);
 
-		final int N = id.length;
-		for(int i=0; i<N; i++) {
-			deleteItemPref(settings, id[i]);
+		for (int anId : id) {
+			deleteItemPref(settings, anId);
 		}
 	}
 
@@ -166,7 +162,7 @@ public class WidgetProvider extends AppWidgetProvider
 		editor.putString(SETTINGS_PREFIX + widget_id + History.Items.MAC, item.mac);
 		editor.putString(SETTINGS_PREFIX + widget_id + History.Items.IP, item.ip);
 		editor.putInt(SETTINGS_PREFIX + widget_id + History.Items.PORT, item.port);
-		editor.commit();
+		editor.apply();
 	}
 
 	public static void deleteItemPref(SharedPreferences settings, int widget_id)
@@ -177,13 +173,13 @@ public class WidgetProvider extends AppWidgetProvider
 		editor.remove(SETTINGS_PREFIX + widget_id + History.Items.MAC);
 		editor.remove(SETTINGS_PREFIX + widget_id + History.Items.IP);
 		editor.remove(SETTINGS_PREFIX + widget_id + History.Items.PORT);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
 	 * @desc	load the HistoryItem associated with a widget_id
 	 */
-	public static HistoryItem loadItemPref(Context context, SharedPreferences settings, int widget_id)
+	public static HistoryItem loadItemPref(SharedPreferences settings, int widget_id)
 	{
 		// get item_id
 		int item_id = settings.getInt(SETTINGS_PREFIX + widget_id, -1);
