@@ -1,8 +1,11 @@
 package net.mafro.android.wakeonlan
 
 import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.RoomDatabase
 
 @Entity
 class History {
@@ -33,4 +36,12 @@ class History {
 
     @ColumnInfo(name = "is_starred")
     var isStarred : Int = 0
+}
+
+@Dao
+interface HistoryDao
+
+@Database(entities = [History::class], version = 2)
+abstract class HistoryDatabase : RoomDatabase() {
+    abstract fun historyDao() : HistoryDao
 }
