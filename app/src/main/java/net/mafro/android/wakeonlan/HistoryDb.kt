@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import androidx.room.RoomDatabase
 
 @Entity
-class History {
+class HistoryIt {
     @PrimaryKey
     @ColumnInfo(name = "_id")
     var id : Int = 0
@@ -41,7 +41,7 @@ class History {
 @Dao
 interface HistoryDao
 
-@Database(entities = [History::class], version = 2)
+@Database(entities = [HistoryIt::class], version = 2)
 abstract class HistoryDatabase : RoomDatabase() {
     abstract fun historyDao() : HistoryDao
 }
