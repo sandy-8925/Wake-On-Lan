@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.EditText
+import androidx.annotation.UiThread
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
@@ -35,7 +36,6 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
-    private var sort_mode: Int = WakeOnLanActivity.CREATED
     private lateinit var histHandler: HistoryListHandler
     private lateinit var histViewModel: HistoryViewModel
 
@@ -46,7 +46,13 @@ class HistoryFragment : Fragment() {
         histViewModel = ViewModelProviders.of(this).get(HistoryViewModel::class.java)
         val settings = requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE)
         histViewModel.sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
-        sort_mode = histViewModel.sort_mode
+    }
+
+    @UiThread
+    private fun setNewSortMode(sortMode : Int) {
+        histViewModel.histListLiveData.removeObserver(listDataObserver)
+        histViewModel.sort_mode = sortMode
+        histViewModel.histListLiveData.observe(this, listDataObserver)
     }
 
     private val listDataObserver: Observer<in List<HistoryIt>> = Observer {
@@ -86,7 +92,7 @@ class HistoryFragment : Fragment() {
 
         var mi: MenuItem? = null
 
-        when (sort_mode) {
+        when (histViewModel.sort_mode) {
             CREATED -> mi = menu.findItem(R.id.menu_created)
             LAST_USED -> mi = menu.findItem(R.id.menu_lastused)
             USED_COUNT -> mi = menu.findItem(R.id.menu_usedcount)
@@ -98,9 +104,9 @@ class HistoryFragment : Fragment() {
 
     override fun onOptionsItemSelected(mi: MenuItem): Boolean {
         when (mi.itemId) {
-            R.id.menu_created -> sort_mode = CREATED
-            R.id.menu_lastused -> sort_mode = LAST_USED
-            R.id.menu_usedcount -> sort_mode = USED_COUNT
+            R.id.menu_created -> setNewSortMode(CREATED)
+            R.id.menu_lastused -> setNewSortMode(LAST_USED)
+            R.id.menu_usedcount -> setNewSortMode(USED_COUNT)
             R.id.menu_sortby -> return false
         }
 
@@ -109,11 +115,9 @@ class HistoryFragment : Fragment() {
 
         // save to preferences
         requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE).edit()
-                .putInt(SORT_MODE_PREFS_KEY, sort_mode)
+                .putInt(SORT_MODE_PREFS_KEY, histViewModel.sort_mode)
                 .apply()
 
-        // rebind the history list
-        histHandler.bind(sort_mode)
         return true
     }
 
