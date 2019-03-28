@@ -42,7 +42,11 @@ class HistoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
         histViewModel = ViewModelProviders.of(this).get(HistoryViewModel::class.java)
+        val settings = requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE)
+        histViewModel.sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
+        sort_mode = histViewModel.sort_mode
     }
 
     private val listDataObserver: Observer<in List<HistoryIt>> = Observer {
@@ -53,12 +57,6 @@ class HistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // preferences
-        val settings = requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE)
-
-        // load our sort mode
-        sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
-
 //        // load history handler (deals with cursor and history ListView)
 //        histHandler = HistoryListHandler(requireActivity(), binding.history)
 //        histHandler.bind(sort_mode)
@@ -156,6 +154,11 @@ class HistoryFragment : Fragment() {
 
 internal class HistoryViewModel : ViewModel() {
     val histListLiveData : LiveData<List<HistoryIt>> = MutableLiveData()
+    var sort_mode: Int = WakeOnLanActivity.CREATED
+        set(value) {
+            //TODO: Change histListLiveData to use new sort_mode
+            field = value
+        }
 }
 
 class WakeFragment : Fragment() {
