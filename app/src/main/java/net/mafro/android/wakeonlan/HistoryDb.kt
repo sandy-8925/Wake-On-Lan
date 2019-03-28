@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 
-@Entity
+@Entity(tableName = HistoryProvider.HISTORY_TABLE_NAME)
 class HistoryIt {
     @PrimaryKey
     @ColumnInfo(name = "_id")
