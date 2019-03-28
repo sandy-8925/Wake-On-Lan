@@ -28,106 +28,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan;
 
-import android.os.Bundle;
-
-import android.content.Context;
 import android.content.ContentResolver;
-
-import android.database.Cursor;
-
 import android.content.ContentValues;
-
+import android.content.Context;
+import android.database.DataSetObserver;
 import android.net.Uri;
-
-import android.util.Log;
-
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-
-import android.widget.TextView;
-import android.widget.AdapterView;
-import android.widget.ResourceCursorAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import net.mafro.android.widget.StarButton;
+
+import java.util.Collections;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 
 /**
  *	@desc	Custom adapter to aid in UI binding
  */
-public class HistoryAdapter extends ResourceCursorAdapter implements OnCheckedChangeListener
-{
+public class HistoryAdapter implements OnCheckedChangeListener, ListAdapter {
 
 	private static final String TAG = "HistoryAdapter";
 
-	private Context context;
 	private ContentResolver content;
+	private boolean showStars;
 
-	boolean showStars;
+	@NonNull
+	private List<HistoryIt> historyItems = Collections.emptyList();
 
-
-	public HistoryAdapter(Context context, Cursor cursor, boolean showStars)
+	HistoryAdapter(Context context, boolean showStars)
 	{
-		super(context, R.layout.history_row, cursor);
-		this.context = context;
 		this.content = context.getContentResolver();
 		this.showStars = showStars;
 	}
 
-
-	@Override
-	public void bindView(View view, Context context, Cursor cursor)
-	{
-		// load our column indexes
-		int idColumn = cursor.getColumnIndex(History.Items._ID);
-		int titleColumn = cursor.getColumnIndex(History.Items.TITLE);
-		int macColumn = cursor.getColumnIndex(History.Items.MAC);
-		int ipColumn = cursor.getColumnIndex(History.Items.IP);
-		int portColumn = cursor.getColumnIndex(History.Items.PORT);
-		int isStarredColumn = cursor.getColumnIndex(History.Items.IS_STARRED);
-
-		TextView vtitle = (TextView) view.findViewById(R.id.history_row_title);
-		TextView vmac = (TextView) view.findViewById(R.id.history_row_mac);
-		TextView vip = (TextView) view.findViewById(R.id.history_row_ip);
-		TextView vport = (TextView) view.findViewById(R.id.history_row_port);
-		StarButton star = (StarButton) view.findViewById(R.id.history_row_star);
-
-		// bind the cursor data to the form items
-		vtitle.setText(cursor.getString(titleColumn));
-		vmac.setText(cursor.getString(macColumn));
-		vip.setText(cursor.getString(ipColumn));
-		vport.setText(Integer.toString(cursor.getInt(portColumn)));
-
-		if(this.showStars == true) {
-			// remove click handler to prevent recursive calls
-			star.setOnCheckedChangeListener(null);
-
-			// change the star state if different
-			boolean starred = (cursor.getInt(isStarredColumn) != 0);	// non-zero == true
-			star.setChecked(starred);
-			star.render();
-
-			// add event listener to star button
-			star.setOnCheckedChangeListener(this);
-
-			// save our record _ID in the star's tag
-			star.setTag(cursor.getInt(idColumn));
-
-		}else{
-			// disable the star button
-			star.setClickable(false);
-			star.noRender = true;
-			star.render();
-		}
-	}
-
-
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 	{
 		// extract record's _ID from tag
-		int id = ((Integer) ((StarButton) buttonView).getTag()).intValue();
+		int id = (Integer) buttonView.getTag();
 
 		if(isChecked) {
 			setIsStarred(id, 1);
@@ -145,4 +90,111 @@ public class HistoryAdapter extends ResourceCursorAdapter implements OnCheckedCh
 		this.content.update(itemUri, values, null, null);
 	}
 
+	@Override
+	public boolean areAllItemsEnabled() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled(int position) {
+		return true;
+	}
+
+	@Override
+	public void registerDataSetObserver(DataSetObserver observer) {
+	}
+
+	@Override
+	public void unregisterDataSetObserver(DataSetObserver observer) {
+	}
+
+	@Override
+	public int getCount() {
+		return historyItems.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return historyItems.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return historyItems.get(position).getId();
+	}
+
+	@Override
+	public boolean hasStableIds() {
+		return true;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View view;
+		if(convertView != null) view = convertView;
+		else {
+			view = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_row, parent, false);
+		}
+		TextView vtitle = view.findViewById(R.id.history_row_title);
+		TextView vmac = view.findViewById(R.id.history_row_mac);
+		TextView vip = view.findViewById(R.id.history_row_ip);
+		TextView vport = view.findViewById(R.id.history_row_port);
+		StarButton star = view.findViewById(R.id.history_row_star);
+
+		final HistoryIt item = (HistoryIt) getItem(position);
+
+		// bind the cursor data to the form items
+		vtitle.setText(item.getTitle());
+		vmac.setText(item.getMac());
+		vip.setText(item.getIp());
+		vport.setText(Integer.toString(item.getPort()));
+
+		if(this.showStars) {
+			// remove click handler to prevent recursive calls
+			star.setOnCheckedChangeListener(null);
+
+			// change the star state if different
+			boolean starred = (item.getStarred() != 0);	// non-zero == true
+			star.setChecked(starred);
+			star.render();
+
+			// add event listener to star button
+			star.setOnCheckedChangeListener(this);
+
+			// save our record _ID in the star's tag
+			star.setTag(item.getId());
+
+		}else{
+			// disable the star button
+			star.setClickable(false);
+			star.noRender = true;
+			star.render();
+		}
+		return view;
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		return 0;
+	}
+
+	@Override
+	public int getViewTypeCount() {
+		return 1;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return historyItems.isEmpty();
+	}
+
+	@Nullable
+	@Override
+	public CharSequence[] getAutofillOptions() {
+		return new CharSequence[0];
+	}
+
+	public void setHistoryItems(@Nullable List<HistoryIt> historyItems) {
+		this.historyItems = historyItems!=null ? historyItems : Collections.<HistoryIt>emptyList();
+	}
 }

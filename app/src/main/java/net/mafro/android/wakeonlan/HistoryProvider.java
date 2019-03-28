@@ -33,19 +33,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
-import android.content.res.Resources;
-
-import android.net.Uri;
-
-import android.util.Log;
-
-import android.text.TextUtils;
-
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 
@@ -62,7 +56,7 @@ public class HistoryProvider extends ContentProvider {
 
 	private static HashMap<String, String> sHistoryProjectionMap;
 
-	private static final String HISTORY_TABLE_NAME = "history";
+	static final String HISTORY_TABLE_NAME = "history";
 
 	private static final int HISTORY = 1;
 	private static final int HISTORY_ID = 2;

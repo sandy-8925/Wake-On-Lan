@@ -96,7 +96,7 @@ public class HistoryListHandler implements OnItemClickListener
 
 		// load History cursor via custom ResourceAdapter
 		cursor = parent.getContentResolver().query(History.Items.CONTENT_URI, PROJECTION, null, null, orderBy);
-		HistoryAdapter adapter = new HistoryAdapter(parent, cursor, showStars);
+		HistoryAdapter adapter = new HistoryAdapter(parent, showStars);
 
 		// register self as listener for item clicks
 		view.setOnItemClickListener(this);

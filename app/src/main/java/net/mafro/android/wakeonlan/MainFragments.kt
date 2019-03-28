@@ -2,12 +2,28 @@ package net.mafro.android.wakeonlan
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.ContextMenu
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import net.mafro.android.wakeonlan.WakeOnLanActivity.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+import net.mafro.android.wakeonlan.WakeOnLanActivity.CREATED
+import net.mafro.android.wakeonlan.WakeOnLanActivity.LAST_USED
+import net.mafro.android.wakeonlan.WakeOnLanActivity.SORT_MODE_PREFS_KEY
+import net.mafro.android.wakeonlan.WakeOnLanActivity.TAG
+import net.mafro.android.wakeonlan.WakeOnLanActivity.USED_COUNT
+import net.mafro.android.wakeonlan.WakeOnLanActivity.notifyUser
 import net.mafro.android.wakeonlan.databinding.HistoryFragmentBinding
 import net.mafro.android.wakeonlan.databinding.WakeFragmentBinding
 
@@ -21,11 +37,19 @@ class HistoryFragment : Fragment() {
 
     private var sort_mode: Int = WakeOnLanActivity.CREATED
     private lateinit var histHandler: HistoryListHandler
+    private lateinit var histViewModel: HistoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        histViewModel = ViewModelProviders.of(this).get(HistoryViewModel::class.java)
     }
+
+    private val listDataObserver: Observer<in List<HistoryIt>> = Observer {
+        historyAdapter.setHistoryItems(it)
+    }
+
+    private lateinit var historyAdapter: HistoryAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,15 +59,18 @@ class HistoryFragment : Fragment() {
         // load our sort mode
         sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
 
-        // load history handler (deals with cursor and history ListView)
-        histHandler = HistoryListHandler(requireActivity(), binding.history)
-        histHandler.bind(sort_mode)
-
-        // add listener to get on click events
-        histHandler.addHistoryListClickListener { item -> onHistoryItemClick(item) }
-
-        // register main Activity as context menu handler
-        registerForContextMenu(binding.history)
+//        // load history handler (deals with cursor and history ListView)
+//        histHandler = HistoryListHandler(requireActivity(), binding.history)
+//        histHandler.bind(sort_mode)
+//
+//        // add listener to get on click events
+//        histHandler.addHistoryListClickListener { item -> onHistoryItemClick(item) }
+//
+//        // register main Activity as context menu handler
+//        registerForContextMenu(binding.history)
+        historyAdapter = HistoryAdapter(requireContext(), true)
+        binding.history.adapter = historyAdapter
+        histViewModel.histListLiveData.observe(this, listDataObserver)
     }
 
     private fun onHistoryItemClick(item: HistoryItem) {
@@ -125,6 +152,10 @@ class HistoryFragment : Fragment() {
             else -> return super.onContextItemSelected(mi)
         }
     }
+}
+
+internal class HistoryViewModel : ViewModel() {
+    val histListLiveData : LiveData<List<HistoryIt>> = MutableLiveData()
 }
 
 class WakeFragment : Fragment() {

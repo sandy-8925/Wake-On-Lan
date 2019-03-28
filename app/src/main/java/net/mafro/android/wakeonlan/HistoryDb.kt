@@ -1,10 +1,12 @@
 package net.mafro.android.wakeonlan
 
+import androidx.lifecycle.LiveData
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Query
 import androidx.room.RoomDatabase
 
 @Entity
@@ -35,11 +37,14 @@ class HistoryIt {
     var usedCount : Int = 1
 
     @ColumnInfo(name = "is_starred")
-    var isStarred : Int = 0
+    var starred : Int = 0
 }
 
 @Dao
-interface HistoryDao
+interface HistoryDao {
+    @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME}")
+    fun getHistoryList() : LiveData<List<HistoryIt>>
+}
 
 @Database(entities = [HistoryIt::class], version = 2)
 abstract class HistoryDatabase : RoomDatabase() {
