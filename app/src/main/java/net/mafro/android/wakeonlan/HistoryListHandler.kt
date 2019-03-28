@@ -151,11 +151,11 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
         this.parent.contentResolver.delete(itemUri, null, null)
     }
 
-    internal fun addHistoryListClickListener(l: HistoryListClickListener) {
+    fun addHistoryListClickListener(l: HistoryListClickListener) {
         this.listeners.add(l)
     }
 
-    internal fun removeHistoryListClickListener(l: HistoryListClickListener) {
+    fun removeHistoryListClickListener(l: HistoryListClickListener) {
         this.listeners.remove(l)
     }
 
