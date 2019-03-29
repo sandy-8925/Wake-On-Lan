@@ -2,7 +2,7 @@ package net.mafro.android.wakeonlan
 
 import android.app.Application
 import android.content.Context
-import net.mafro.android.wakeonlan.WakeOnLanActivity.*
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.TAG
 
 class WakeOnLanApp : Application() {
     override fun onCreate() {

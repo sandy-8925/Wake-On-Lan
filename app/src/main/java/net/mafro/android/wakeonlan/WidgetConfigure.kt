@@ -59,7 +59,11 @@ class WidgetConfigure : Activity() {
         historyListHandler.bind(sortMode)
 
         // add on click listener
-        historyListHandler.addHistoryListClickListener(HistoryListClickListener { item -> selected(item) })
+        historyListHandler.addHistoryListClickListener(object : HistoryListClickListener {
+            override fun onClick(item: HistoryItem) {
+                selected(item)
+            }
+        })
 
         // get the widget id
         val intent = intent

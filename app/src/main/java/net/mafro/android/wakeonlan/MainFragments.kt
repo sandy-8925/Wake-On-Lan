@@ -19,12 +19,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
-import net.mafro.android.wakeonlan.WakeOnLanActivity.CREATED
-import net.mafro.android.wakeonlan.WakeOnLanActivity.LAST_USED
-import net.mafro.android.wakeonlan.WakeOnLanActivity.SORT_MODE_PREFS_KEY
-import net.mafro.android.wakeonlan.WakeOnLanActivity.TAG
-import net.mafro.android.wakeonlan.WakeOnLanActivity.USED_COUNT
-import net.mafro.android.wakeonlan.WakeOnLanActivity.notifyUser
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.CREATED
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.LAST_USED
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.SORT_MODE_PREFS_KEY
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.TAG
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.USED_COUNT
+import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.notifyUser
 import net.mafro.android.wakeonlan.databinding.HistoryFragmentBinding
 import net.mafro.android.wakeonlan.databinding.WakeFragmentBinding
 

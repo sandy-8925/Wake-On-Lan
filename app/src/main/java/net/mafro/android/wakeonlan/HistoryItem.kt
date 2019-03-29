@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013-2014 Yohan Pereira, Matt Black
+Copyright (C) 2008-2012 Matt Black.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package net.mafro.android.wakeonlan;
+package net.mafro.android.wakeonlan
+
 
 /**
- * @desc	HistoryListClickListener defines the interface for an object that
- * 				listens to onClick events on the HistoryList
+ * @desc    Convenience class for passing history entries around the application
  */
-public interface HistoryListClickListener {
-	void onClick(HistoryItem item);
-}
+class HistoryItem(var id: Int, var title: String, var mac: String, var ip: String, var port: Int)
