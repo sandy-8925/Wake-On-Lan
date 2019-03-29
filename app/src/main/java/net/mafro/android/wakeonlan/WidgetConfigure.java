@@ -29,30 +29,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan;
 
 import android.app.Activity;
-import android.app.PendingIntent;
-
 import android.appwidget.AppWidgetManager;
-
-import android.os.Bundle;
-
-import android.view.View;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.Context;
-
-import android.widget.EditText;
+import android.os.Bundle;
 import android.widget.ListView;
-import android.widget.RemoteViews;
 
 /**
  * @desc	This class is used to configure the home screen widget
  */
 public class WidgetConfigure extends Activity
 {
-
-	public static final String TAG = "WidgetConfigure";
-
-	private HistoryListHandler historyListHandler;
 	private int widget_id;
 	private SharedPreferences settings;
 
@@ -67,8 +54,8 @@ public class WidgetConfigure extends Activity
 		setResult(RESULT_CANCELED);
 
 		setContentView(R.layout.widget_configure);
-		ListView lv = (ListView)findViewById(R.id.history);
-		historyListHandler = new HistoryListHandler(this, lv);
+		ListView lv = findViewById(R.id.history);
+		HistoryListHandler historyListHandler = new HistoryListHandler(this, lv);
 
 		settings = getSharedPreferences(WakeOnLanActivity.TAG, 0);
 		int sort_mode = settings.getInt("sort_mode", WakeOnLanActivity.CREATED);
