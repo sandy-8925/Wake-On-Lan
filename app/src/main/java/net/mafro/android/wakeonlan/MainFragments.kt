@@ -45,13 +45,13 @@ class HistoryFragment : Fragment() {
 
         histViewModel = ViewModelProviders.of(this).get(HistoryViewModel::class.java)
         val settings = requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE)
-        histViewModel.sort_mode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
+        histViewModel.sortMode = settings.getInt(SORT_MODE_PREFS_KEY, WakeOnLanActivity.CREATED)
     }
 
     @UiThread
     private fun setNewSortMode(sortMode : Int) {
         histViewModel.histListLiveData.removeObserver(listDataObserver)
-        histViewModel.sort_mode = sortMode
+        histViewModel.sortMode = sortMode
         histViewModel.histListLiveData.observe(this, listDataObserver)
     }
 
@@ -92,7 +92,7 @@ class HistoryFragment : Fragment() {
 
         var mi: MenuItem? = null
 
-        when (histViewModel.sort_mode) {
+        when (histViewModel.sortMode) {
             CREATED -> mi = menu.findItem(R.id.menu_created)
             LAST_USED -> mi = menu.findItem(R.id.menu_lastused)
             USED_COUNT -> mi = menu.findItem(R.id.menu_usedcount)
@@ -115,7 +115,7 @@ class HistoryFragment : Fragment() {
 
         // save to preferences
         requireContext().getSharedPreferences(TAG, Context.MODE_PRIVATE).edit()
-                .putInt(SORT_MODE_PREFS_KEY, histViewModel.sort_mode)
+                .putInt(SORT_MODE_PREFS_KEY, histViewModel.sortMode)
                 .apply()
 
         return true
@@ -158,9 +158,9 @@ class HistoryFragment : Fragment() {
 
 internal class HistoryViewModel : ViewModel() {
     val histListLiveData : LiveData<List<HistoryIt>> = MutableLiveData()
-    var sort_mode: Int = WakeOnLanActivity.CREATED
+    var sortMode: Int = WakeOnLanActivity.CREATED
         set(value) {
-            //TODO: Change histListLiveData to use new sort_mode
+            //TODO: Change histListLiveData to use new sortMode
             field = value
         }
 }
