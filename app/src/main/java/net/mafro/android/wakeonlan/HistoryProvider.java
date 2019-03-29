@@ -182,7 +182,7 @@ public class HistoryProvider extends ContentProvider {
 		// insert record, 2nd param is NULLABLE field for if values is empty
 		long rowId = db.insert(HISTORY_TABLE_NAME, History.Items.MAC, values);
 		if(rowId > 0) {
-			Uri histUri = ContentUris.withAppendedId(History.Items.CONTENT_URI, rowId);
+			Uri histUri = ContentUris.withAppendedId(History.Items.Companion.getCONTENT_URI(), rowId);
 			getContext().getContentResolver().notifyChange(histUri, null);
 			return histUri;
 		}

@@ -26,38 +26,34 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package net.mafro.android.wakeonlan;
+package net.mafro.android.wakeonlan
 
-import android.net.Uri;
-import android.provider.BaseColumns;
+import android.net.Uri
+import android.provider.BaseColumns
 
 
 /**
- *	@desc	convenience definitions for HistoryProvider
+ * @desc    convenience definitions for HistoryProvider
  */
-final class History {
-	static final String AUTHORITY = "net.mafro.android.wakeonlan.historyprovider";
+internal object History {
+    const val AUTHORITY = "net.mafro.android.wakeonlan.historyprovider"
 
-	private History() {}
+    internal object Items : BaseColumns {
+            const val _ID : String = "_id"
+            val CONTENT_URI : Uri = Uri.parse("content://$AUTHORITY/history")
 
-	static final class Items implements BaseColumns {
-		private Items() {}
+            const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mafro.wakeonlan.history"
+            const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mafro.wakeonlan.history"
 
-		static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/history");
+            const val DEFAULT_SORT_ORDER = "last_used DESC"
 
-		static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mafro.wakeonlan.history";
-		static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mafro.wakeonlan.history";
-
-		static final String DEFAULT_SORT_ORDER = "last_used DESC";
-
-		static final String TITLE = "title";
-		static final String MAC = "mac";
-		static final String IP = "ip";
-		static final String PORT = "port";
-		static final String CREATED_DATE = "created";
-		static final String LAST_USED_DATE = "last_used";
-		static final String USED_COUNT = "used_count";
-		static final String IS_STARRED = "is_starred";
-	}
-
+            const val TITLE = "title"
+            const val MAC = "mac"
+            const val IP = "ip"
+            const val PORT = "port"
+            const val CREATED_DATE = "created"
+            const val LAST_USED_DATE = "last_used"
+            const val USED_COUNT = "used_count"
+            const val IS_STARRED = "is_starred"
+    }
 }
