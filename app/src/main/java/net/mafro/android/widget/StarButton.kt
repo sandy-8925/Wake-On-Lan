@@ -26,73 +26,51 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package net.mafro.android.widget;
+package net.mafro.android.widget
 
-import android.os.Bundle;
-
-import android.content.Context;
-
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-
-import android.graphics.Canvas;
-
-import android.util.AttributeSet;
-import android.util.Log;
-
-import net.mafro.android.wakeonlan.R;
+import android.content.Context
+import android.util.AttributeSet
+import android.widget.CompoundButton
+import android.widget.CompoundButton.OnCheckedChangeListener
+import net.mafro.android.wakeonlan.R
 
 
 /**
- *	@desc	Custom button type to implement Google-style favourite star
+ * @desc    Custom button type to implement Google-style favourite star
  */
-public class StarButton extends CompoundButton implements OnCheckedChangeListener
-{
+class StarButton : CompoundButton, OnCheckedChangeListener {
 
-	private static final String TAG = "StarButton";
-
-	public boolean noRender = false;
+    var noRender = false
 
 
-	public StarButton(Context context)
-	{
-		super(context);
-		init(context);
-	}
+    constructor(context: Context) : super(context) {
+        init()
+    }
 
-	public StarButton(Context context, AttributeSet attrs)
-	{
-		super(context, attrs);
-		init(context);
-	}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        init()
+    }
 
-	public StarButton(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		init(context);
-	}
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
+        init()
+    }
 
 
-	private void init(Context context)
-	{
-		setOnCheckedChangeListener(this);
-		render();
-	}
+    private fun init() {
+        setOnCheckedChangeListener(this)
+        render()
+    }
 
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-	{
-		render();
-	}
+    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+        render()
+    }
 
-	public void render()
-	{
-		// render the icon on this button
-		if(noRender == true) {
-			setButtonDrawable(android.R.color.transparent);
-		}else if(isChecked() == true) {
-			setButtonDrawable(R.drawable.btn_star_big_on);
-		}else{
-			setButtonDrawable(R.drawable.btn_star_big_off);
-		}
-	}
-
+    fun render() {
+        // render the icon on this button
+        when {
+            noRender -> setButtonDrawable(android.R.color.transparent)
+            isChecked -> setButtonDrawable(R.drawable.btn_star_big_on)
+            else -> setButtonDrawable(R.drawable.btn_star_big_off)
+        }
+    }
 }
