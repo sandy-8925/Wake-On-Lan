@@ -40,6 +40,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.text.TextUtils
+import androidx.sqlite.db.SimpleSQLiteQuery
 import java.util.*
 
 
@@ -78,7 +79,7 @@ class HistoryProvider : ContentProvider() {
     }
 
     override fun onCreate(): Boolean {
-        mOpenHelper = DatabaseHelper(context)
+//        mOpenHelper = DatabaseHelper(context)
         return true
     }
 
@@ -96,8 +97,9 @@ class HistoryProvider : ContentProvider() {
         }
 
         // get the database and run the query
-        val db = mOpenHelper!!.readableDatabase
-        val c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy)
+        val queryString = qb.buildQuery(projection, selection, null, null, orderBy, null)
+        val query = SimpleSQLiteQuery(queryString, selectionArgs)
+        val c = historyDb.historyDao().doQuery(query)
 
         // tell the cursor what uri to watch, so it knows when its source data changes
         c.setNotificationUri(context!!.contentResolver, uri)
@@ -204,10 +206,10 @@ class HistoryProvider : ContentProvider() {
 
         private const val TAG = "HistoryProvider"
 
-        private const val DATABASE_NAME = "wakeonlan_history.db"
-        private const val DATABASE_VERSION = 2
+        internal const val DATABASE_NAME = "wakeonlan_history.db"
+        internal const val DATABASE_VERSION = 3
 
-        private var sHistoryProjectionMap: HashMap<String, String>? = null
+        internal var sHistoryProjectionMap: HashMap<String, String>? = null
 
         internal const val HISTORY_TABLE_NAME = "history"
 

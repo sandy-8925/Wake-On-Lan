@@ -15,7 +15,6 @@ import androidx.annotation.UiThread
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -72,7 +71,7 @@ class HistoryFragment : Fragment() {
 //
 //        // register main Activity as context menu handler
 //        registerForContextMenu(binding.history)
-        historyAdapter = HistoryAdapter(requireContext(), true)
+        historyAdapter = HistoryAdapter(true)
         binding.history.adapter = historyAdapter
         histViewModel.histListLiveData.observe(this, listDataObserver)
     }
@@ -157,7 +156,7 @@ class HistoryFragment : Fragment() {
 }
 
 internal class HistoryViewModel : ViewModel() {
-    val histListLiveData : LiveData<List<HistoryIt>> = MutableLiveData()
+    val histListLiveData : LiveData<List<HistoryIt>> = historyDb.historyDao().getHistoryList()
     var sortMode: Int = WakeOnLanActivity.CREATED
         set(value) {
             //TODO: Change histListLiveData to use new sortMode

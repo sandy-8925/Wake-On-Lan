@@ -31,11 +31,13 @@ package net.mafro.android.wakeonlan
 import android.app.Activity
 import android.content.ContentValues
 import android.database.Cursor
+import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ListView
+import androidx.sqlite.db.SimpleSQLiteQuery
 import java.util.*
 
 
@@ -66,8 +68,14 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
         }
 
         // load History cursor via custom ResourceAdapter
-        cursor = parent.contentResolver.query(History.Items.CONTENT_URI, PROJECTION, null, null, orderBy)
-        val adapter = HistoryAdapter(parent, showStars)
+        val qb = SQLiteQueryBuilder().apply {
+            this.tables = HistoryProvider.HISTORY_TABLE_NAME
+            this.setProjectionMap(HistoryProvider.sHistoryProjectionMap)
+        }
+        val queryString = qb.buildQuery(PROJECTION, null, null, null, orderBy, null)
+        val query = SimpleSQLiteQuery(queryString)
+        cursor = historyDb.query(query)
+        val adapter = HistoryAdapter(showStars)
 
         // register self as listener for item clicks
         view.onItemClickListener = this
@@ -134,21 +142,15 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
     }
 
     fun incrementHistory(id: Long) {
-        val usedCountColumn = cursor!!.getColumnIndex(History.Items.USED_COUNT)
-        val usedCount = cursor!!.getInt(usedCountColumn)
-
-        val values = ContentValues(1)
-        values.put(History.Items.USED_COUNT, usedCount + 1)
-        values.put(History.Items.LAST_USED_DATE, java.lang.Long.valueOf(System.currentTimeMillis()))
-
-        val itemUri = Uri.withAppendedPath(History.Items.CONTENT_URI, java.lang.Long.toString(id))
-        this.parent.contentResolver.update(itemUri, values, null, null)
+        val historyItem = historyDb.historyDao().historyItem(id)
+        historyItem.usedCount++
+        historyItem.lastUsedDate = System.currentTimeMillis()
+        historyDb.historyDao().updateItem(historyItem)
     }
 
     fun deleteHistory(id: Int) {
-        // use HistoryProvider to remove this row
-        val itemUri = Uri.withAppendedPath(History.Items.CONTENT_URI, Integer.toString(id))
-        this.parent.contentResolver.delete(itemUri, null, null)
+        val historyItem = historyDb.historyDao().historyItem(id.toLong())
+        historyDb.historyDao().deleteItem(historyItem)
     }
 
     fun addHistoryListClickListener(l: HistoryListClickListener) {

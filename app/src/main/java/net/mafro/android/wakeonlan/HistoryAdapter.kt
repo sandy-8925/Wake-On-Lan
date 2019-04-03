@@ -28,11 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan
 
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
 import android.database.DataSetObserver
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,9 +42,8 @@ import net.mafro.android.widget.StarButton
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-class HistoryAdapter internal constructor(context: Context, private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter {
+class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter {
 
-    private val content: ContentResolver = context.contentResolver
     private var historyItems = emptyList<HistoryIt>()
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
@@ -63,12 +58,9 @@ class HistoryAdapter internal constructor(context: Context, private val showStar
     }
 
     private fun setIsStarred(id: Int, value: Int) {
-        // update history setting is_starred to value
-        val values = ContentValues(1)
-        values.put(History.Items.IS_STARRED, value)
-
-        val itemUri = Uri.withAppendedPath(History.Items.CONTENT_URI, Integer.toString(id))
-        this.content.update(itemUri, values, null, null)
+        val historyItem = historyDb.historyDao().historyItem(id.toLong())
+        historyItem.starred = value
+        historyDb.historyDao().updateItem(historyItem)
     }
 
     override fun areAllItemsEnabled(): Boolean = true
