@@ -2,14 +2,25 @@ package net.mafro.android.wakeonlan
 
 import android.database.Cursor
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RoomDatabase
+import androidx.room.Update
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 
 @Entity(tableName = HistoryProvider.HISTORY_TABLE_NAME)
 class HistoryIt {
-    @PrimaryKey
+    //TODO: Test update scenario from old version of app to new version
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     var id : Int = 0
 
