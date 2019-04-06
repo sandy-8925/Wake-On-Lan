@@ -28,21 +28,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan
 
-import android.database.DataSetObserver
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.BaseAdapter
 import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
-import android.widget.ListAdapter
 import android.widget.TextView
+import androidx.annotation.UiThread
 import net.mafro.android.widget.StarButton
 
 
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter {
+class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, BaseAdapter() {
 
     private var historyItems = emptyList<HistoryIt>()
 
@@ -62,14 +62,6 @@ class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCh
         historyItem.starred = value
         historyDb.historyDao().updateItem(historyItem)
     }
-
-    override fun areAllItemsEnabled(): Boolean = true
-
-    override fun isEnabled(position: Int): Boolean = true
-
-    override fun registerDataSetObserver(observer: DataSetObserver) {}
-
-    override fun unregisterDataSetObserver(observer: DataSetObserver) {}
 
     override fun getCount(): Int = historyItems.size
 
@@ -119,15 +111,9 @@ class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCh
         return view
     }
 
-    override fun getItemViewType(position: Int): Int = 0
-
-    override fun getViewTypeCount(): Int = 1
-
-    override fun isEmpty(): Boolean = historyItems.isEmpty()
-
-    override fun getAutofillOptions(): Array<CharSequence>? = null
-
+    @UiThread
     fun setHistoryItems(historyItems: List<HistoryIt>?) {
         this.historyItems = historyItems ?: emptyList()
+        notifyDataSetChanged()
     }
 }
