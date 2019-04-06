@@ -2,16 +2,7 @@ package net.mafro.android.wakeonlan
 
 import android.database.Cursor
 import androidx.lifecycle.LiveData
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RawQuery
-import androidx.room.RoomDatabase
-import androidx.room.Update
+import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -63,6 +54,12 @@ interface HistoryDao {
 
     @Delete
     fun deleteItem(historyItem: HistoryIt)
+
+    @Query("select count(*) from ${HistoryProvider.HISTORY_TABLE_NAME} where ${History.Items.MAC}=:mac and ${History.Items.IP}=:ip and ${History.Items.PORT}=:port")
+    fun getNumRows(mac : String, ip : String, port : Int) : Int
+
+    @Insert
+    fun addNewItem(item : HistoryIt)
 }
 
 @Database(entities = [HistoryIt::class], version = HistoryProvider.DATABASE_VERSION)

@@ -18,6 +18,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
+import io.reactivex.Single
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.CREATED
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.LAST_USED
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.SORT_MODE_PREFS_KEY
@@ -26,6 +29,7 @@ import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.USED_COUNT
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.notifyUser
 import net.mafro.android.wakeonlan.databinding.HistoryFragmentBinding
 import net.mafro.android.wakeonlan.databinding.WakeFragmentBinding
+import java.util.concurrent.Callable
 
 class HistoryFragment : Fragment() {
     private lateinit var binding: HistoryFragmentBinding
@@ -265,8 +269,16 @@ class WakeFragment : Fragment() {
     }
 
     private val saveClickListener: View.OnClickListener = View.OnClickListener {
-        //TODO: clear form and persist history record
-        //histHandler.addToHistory(title, formattedMac, ip, port)
+        val title = binding.title.text.toString()
+        val formattedMac = binding.mac.text.toString()
+        val ip = binding.ip.text.toString()
+        val port = Integer.parseInt(binding.port.text.toString())
+
+        Single.fromCallable(ItemAlreadyPresent(formattedMac, ip, port))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnSuccess(WakePacketSaveAction(title, formattedMac, ip, port))
+                .subscribe()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -282,5 +294,24 @@ class WakeFragment : Fragment() {
 
         // register self as mac address field focus change listener
         binding.mac.onFocusChangeListener = macFocusChangeListener
+    }
+}
+
+internal class ItemAlreadyPresent(private val mac: String, private val ip: String, private val port: Int) : Callable<Boolean> {
+    override fun call(): Boolean {
+        return historyDb.historyDao().getNumRows(mac, ip, port) > 0
+    }
+}
+
+internal class WakePacketSaveAction(private val title: String, private val mac: String, private val ip: String, private val port: Int) : Consumer<Boolean> {
+    override fun accept(itemAlreadyPresent: Boolean) {
+        if(itemAlreadyPresent) return
+        val newHistoryIt = HistoryIt().also {
+            it.title = title
+            it.mac = mac
+            it.ip = ip
+            it.port = port
+        }
+        historyDb.historyDao().addNewItem(newHistoryIt)
     }
 }
