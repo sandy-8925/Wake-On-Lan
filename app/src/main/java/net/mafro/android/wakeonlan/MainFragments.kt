@@ -260,6 +260,11 @@ class WakeFragment : Fragment() {
     }
 
     private val clearClickListener: View.OnClickListener = View.OnClickListener {
+        clearForm()
+    }
+
+    @UiThread
+    private fun clearForm() {
         // clear the form
         binding.title.text = null
         binding.mac.text = null
@@ -273,6 +278,8 @@ class WakeFragment : Fragment() {
         val formattedMac = binding.mac.text.toString()
         val ip = binding.ip.text.toString()
         val port = Integer.parseInt(binding.port.text.toString())
+
+        clearForm()
 
         Single.fromCallable(ItemAlreadyPresent(formattedMac, ip, port))
                 .subscribeOn(Schedulers.io())
