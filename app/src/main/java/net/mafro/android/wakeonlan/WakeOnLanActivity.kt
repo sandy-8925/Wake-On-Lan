@@ -136,22 +136,22 @@ class WakeOnLanActivity : AppCompatActivity(), OnTabChangeListener {
     }
 
     companion object {
-        val TAG = "WakeOnLan"
+        const val TAG = "WakeOnLan"
 
-        val MENU_ITEM_WAKE = Menu.FIRST
-        val MENU_ITEM_DELETE = Menu.FIRST + 1
-        internal val SORT_MODE_PREFS_KEY = "sort_mode"
+        const val MENU_ITEM_WAKE = Menu.FIRST
+        const val MENU_ITEM_DELETE = Menu.FIRST + 1
+        internal const val SORT_MODE_PREFS_KEY = "sort_mode"
 
-        private val _editModeID = 0
+        private const val _editModeID = 0
         private var typingMode = false
 
         private var isTablet = false
 
-        private val sort_mode: Int = 0
+        private const val sort_mode: Int = 0
 
-        val CREATED = 0
-        val LAST_USED = 1
-        val USED_COUNT = 2
+        const val CREATED = 0
+        const val LAST_USED = 1
+        const val USED_COUNT = 2
 
         private val PROJECTION = arrayOf(History.Items._ID, History.Items.TITLE, History.Items.MAC, History.Items.IP, History.Items.PORT, History.Items.LAST_USED_DATE, History.Items.USED_COUNT, History.Items.IS_STARRED)
 
