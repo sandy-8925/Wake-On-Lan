@@ -2,17 +2,7 @@ package net.mafro.android.wakeonlan
 
 import android.database.Cursor
 import androidx.lifecycle.LiveData
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RawQuery
-import androidx.room.RoomDatabase
-import androidx.room.Update
+import androidx.room.*
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -51,8 +41,8 @@ class HistoryIt {
 
 @Dao
 interface HistoryDao {
-    @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME}")
-    fun getHistoryList() : LiveData<List<HistoryIt>>
+    @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME} order by :sortModeColname")
+    fun getHistoryList(sortModeColname : String) : LiveData<List<HistoryIt>>
 
     @RawQuery
     fun doQuery(query : SupportSQLiteQuery) : Cursor

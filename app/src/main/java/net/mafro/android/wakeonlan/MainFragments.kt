@@ -2,13 +2,7 @@ package net.mafro.android.wakeonlan
 
 import android.content.Context
 import android.os.Bundle
-import android.view.ContextMenu
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.EditText
 import androidx.annotation.UiThread
@@ -160,10 +154,22 @@ class HistoryFragment : Fragment() {
 }
 
 internal class HistoryViewModel : ViewModel() {
-    val histListLiveData : LiveData<List<HistoryIt>> = historyDb.historyDao().getHistoryList()
+    var histListLiveData : LiveData<List<HistoryIt>> = createHistListLiveDataObject()
+        private set
+
+    private fun createHistListLiveDataObject() : LiveData<List<HistoryIt>> {
+        val sortColumnName = when(sortMode) {
+            WakeOnLanActivity.CREATED -> History.Items.CREATED_DATE
+            WakeOnLanActivity.LAST_USED -> History.Items.LAST_USED_DATE
+            WakeOnLanActivity.USED_COUNT -> History.Items.USED_COUNT
+            else -> History.Items.CREATED_DATE
+        }
+        return historyDb.historyDao().getHistoryList(sortColumnName)
+    }
+
     var sortMode: Int = WakeOnLanActivity.CREATED
         set(value) {
-            //TODO: Change histListLiveData to use new sortMode
+            histListLiveData = createHistListLiveDataObject()
             field = value
         }
 }
