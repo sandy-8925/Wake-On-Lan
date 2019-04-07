@@ -12,6 +12,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Single
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
@@ -70,6 +72,7 @@ class HistoryFragment : Fragment() {
 //        // register main Activity as context menu handler
 //        registerForContextMenu(binding.history)
         historyAdapter = HistoryAdapter(true)
+        binding.history.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.history.adapter = historyAdapter
         histViewModel.histListLiveData.observe(this, listDataObserver)
     }

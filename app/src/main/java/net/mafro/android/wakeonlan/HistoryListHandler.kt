@@ -34,8 +34,10 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
+import android.widget.BaseAdapter
 import android.widget.ListView
 import androidx.sqlite.db.SimpleSQLiteQuery
 import java.util.*
@@ -75,7 +77,7 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
         val queryString = qb.buildQuery(PROJECTION, null, null, null, orderBy, null)
         val query = SimpleSQLiteQuery(queryString)
         cursor = historyDb.query(query)
-        val adapter = HistoryAdapter(showStars)
+        val adapter = EmptyAdapter(showStars)
 
         // register self as listener for item clicks
         view.onItemClickListener = this
@@ -176,3 +178,16 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
     }
 
 }
+
+internal class EmptyAdapter(showStars: Boolean) : BaseAdapter() {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getItem(position: Int): Any = position
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun getCount(): Int = 0
+}
+

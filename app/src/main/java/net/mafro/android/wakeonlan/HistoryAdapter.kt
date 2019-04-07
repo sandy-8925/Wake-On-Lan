@@ -29,20 +29,58 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
-import android.widget.TextView
 import androidx.annotation.UiThread
-import net.mafro.android.widget.StarButton
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
+import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
 
 
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, BaseAdapter() {
+internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, RecyclerView.Adapter<HistoryCellViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = DataBindingUtil.inflate<HistoryRowBinding>(inflater, R.layout.history_row, parent, false)
+        return HistoryCellViewHolder(binding)
+    }
+
+    override fun getItemCount(): Int  = historyItems.size
+
+    override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
+        val item = historyItems[position]
+
+        // bind the cursor data to the form items
+        holder.binding.historyRowTitle.text = item.title
+        holder.binding.historyRowMac.text = item.mac
+        holder.binding.historyRowIp.text = item.ip
+        holder.binding.historyRowPort.text = Integer.toString(item.port)
+        val star = holder.binding.historyRowStar
+
+        if (this.showStars) {
+            // remove click handler to prevent recursive calls
+            star.setOnCheckedChangeListener(null)
+
+            // change the star state if different
+            val starred = item.starred != 0    // non-zero == true
+            star.isChecked = starred
+            star.render()
+
+            // add event listener to star button
+            star.setOnCheckedChangeListener(this)
+
+            // save our record _ID in the star's tag
+            star.tag = item.id
+        } else {
+            // disable the star button
+            star.isClickable = false
+            star.noRender = true
+            star.render()
+        }
+    }
 
     private var historyItems = emptyList<HistoryIt>()
 
@@ -63,57 +101,11 @@ class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCh
         historyDb.historyDao().updateItem(historyItem)
     }
 
-    override fun getCount(): Int = historyItems.size
-
-    override fun getItem(position: Int): Any = historyItems[position]
-
-    override fun getItemId(position: Int): Long = historyItems[position].id.toLong()
-
-    override fun hasStableIds(): Boolean = true
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view: View = convertView ?: LayoutInflater.from(parent.context).inflate(R.layout.history_row, parent, false)
-        val vtitle = view.findViewById<TextView>(R.id.history_row_title)
-        val vmac = view.findViewById<TextView>(R.id.history_row_mac)
-        val vip = view.findViewById<TextView>(R.id.history_row_ip)
-        val vport = view.findViewById<TextView>(R.id.history_row_port)
-        val star = view.findViewById<StarButton>(R.id.history_row_star)
-
-        val item = getItem(position) as HistoryIt
-
-        // bind the cursor data to the form items
-        vtitle.text = item.title
-        vmac.text = item.mac
-        vip.text = item.ip
-        vport.text = Integer.toString(item.port)
-
-        if (this.showStars) {
-            // remove click handler to prevent recursive calls
-            star.setOnCheckedChangeListener(null)
-
-            // change the star state if different
-            val starred = item.starred != 0    // non-zero == true
-            star.isChecked = starred
-            star.render()
-
-            // add event listener to star button
-            star.setOnCheckedChangeListener(this)
-
-            // save our record _ID in the star's tag
-            star.tag = item.id
-
-        } else {
-            // disable the star button
-            star.isClickable = false
-            star.noRender = true
-            star.render()
-        }
-        return view
-    }
-
     @UiThread
-    fun setHistoryItems(historyItems: List<HistoryIt>?) {
+    internal fun setHistoryItems(historyItems: List<HistoryIt>?) {
         this.historyItems = historyItems ?: emptyList()
         notifyDataSetChanged()
     }
 }
+
+internal class HistoryCellViewHolder(val binding : HistoryRowBinding) : RecyclerView.ViewHolder(binding.root)
