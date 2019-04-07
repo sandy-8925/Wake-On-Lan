@@ -21,31 +21,31 @@ import androidx.sqlite.db.SupportSQLiteQuery
 class HistoryIt {
     //TODO: Test update scenario from old version of app to new version
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "_id")
+    @ColumnInfo(name = History.Items._ID)
     var id : Int = 0
 
-    @ColumnInfo(name = "title")
+    @ColumnInfo(name = History.Items.TITLE)
     var title : String = ""
 
-    @ColumnInfo(name = "mac")
+    @ColumnInfo(name = History.Items.MAC)
     lateinit var mac : String
 
-    @ColumnInfo(name = "ip")
+    @ColumnInfo(name = History.Items.IP)
     lateinit var ip : String
 
-    @ColumnInfo(name = "port")
+    @ColumnInfo(name = History.Items.PORT)
     var port : Int = MagicPacket.PORT
 
-    @ColumnInfo(name = "created")
+    @ColumnInfo(name = History.Items.CREATED_DATE)
     var createdDate : Int = 0
 
-    @ColumnInfo(name = "last_used")
+    @ColumnInfo(name = History.Items.LAST_USED_DATE)
     var lastUsedDate : Long = 0
 
-    @ColumnInfo(name = "used_count")
+    @ColumnInfo(name = History.Items.USED_COUNT)
     var usedCount : Int = 1
 
-    @ColumnInfo(name = "is_starred")
+    @ColumnInfo(name = History.Items.IS_STARRED)
     var starred : Int = 0
 }
 
