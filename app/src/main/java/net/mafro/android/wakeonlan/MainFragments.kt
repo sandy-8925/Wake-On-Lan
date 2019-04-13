@@ -2,7 +2,13 @@ package net.mafro.android.wakeonlan
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.ContextMenu
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.EditText
 import androidx.annotation.UiThread
@@ -278,8 +284,8 @@ class WakeFragment : Fragment() {
         binding.title.text = null
         binding.mac.text = null
         binding.mac.error = null
-        binding.ip.text = null
-        binding.port.text = null
+        binding.ip.setText(MagicPacket.BROADCAST)
+        binding.port.setText(MagicPacket.PORT.toString())
     }
 
     private val saveClickListener: View.OnClickListener = View.OnClickListener {
