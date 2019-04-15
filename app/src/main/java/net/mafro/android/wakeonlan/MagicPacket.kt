@@ -189,7 +189,6 @@ object MagicPacket {
     }
 
     private class MagicPacketSuccessAction constructor(private val context: Context, private val title: String) : Consumer<String> {
-
         override fun accept(s: String) {
             // display sent message to user
             val msg = String.format("%s to %s", context.getString(R.string.packet_sent), title)
@@ -198,7 +197,6 @@ object MagicPacket {
     }
 
     private class MagicPacketErrorAction constructor(private val context: Context) : io.reactivex.functions.Consumer<Throwable> {
-
         override fun accept(throwable: Throwable) {
             val msg = String.format("%s:\n%s", context.getString(R.string.send_failed), throwable.message)
             WakeOnLanActivity.notifyUser(msg, context)
@@ -206,7 +204,6 @@ object MagicPacket {
     }
 
     private class MagicPacketCallable constructor(private val mac: String, private val ip: String, private val port: Int) : Callable<String> {
-
         @Throws(IOException::class)
         override fun call(): String {
             return send(mac, ip, port)
