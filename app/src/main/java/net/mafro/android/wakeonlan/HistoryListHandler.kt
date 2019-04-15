@@ -39,21 +39,16 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.BaseAdapter
 import android.widget.ListView
+import androidx.annotation.WorkerThread
 import androidx.sqlite.db.SimpleSQLiteQuery
-import java.util.*
 
 
 /**
  * Class handles all functions of the history ListView
  */
-class HistoryListHandler(private val parent: Activity, private val view: ListView) : OnItemClickListener {
+internal class HistoryListHandler(private val parent: Activity, private val view: ListView) : OnItemClickListener {
     private var cursor: Cursor? = null
-    private val listeners: MutableList<HistoryListClickListener>
-
-
-    init {
-        this.listeners = ArrayList()
-    }
+    private val listeners: MutableList<HistoryListClickListener> = ArrayList()
 
     fun bind(sort_mode: Int) {
         var orderBy: String? = null
@@ -143,6 +138,7 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
         this.parent.contentResolver.update(itemUri, values, null, null)
     }
 
+    @WorkerThread
     fun incrementHistory(id: Long) {
         val historyItem = historyDb.historyDao().historyItem(id)
         historyItem.usedCount++
@@ -150,6 +146,7 @@ class HistoryListHandler(private val parent: Activity, private val view: ListVie
         historyDb.historyDao().updateItem(historyItem)
     }
 
+    @WorkerThread
     fun deleteHistory(id: Int) {
         val historyItem = historyDb.historyDao().historyItem(id.toLong())
         historyDb.historyDao().deleteItem(historyItem)
