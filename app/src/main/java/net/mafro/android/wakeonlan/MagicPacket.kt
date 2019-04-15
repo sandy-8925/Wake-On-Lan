@@ -52,7 +52,7 @@ object MagicPacket {
 
     @WorkerThread
     @Throws(IOException::class, IllegalArgumentException::class)
-    private fun send(mac: String, ip: String, port: Int = PORT): String {
+    internal fun send(mac: String, ip: String, port: Int = PORT): String {
         // validate MAC and chop into array
         val hex = validateMac(mac)
 
@@ -160,9 +160,9 @@ object MagicPacket {
         var macStr = args[1]
 
         try {
-            macStr = MagicPacket.cleanMac(macStr)
+            macStr = cleanMac(macStr)
             println("Sending to: $macStr")
-            MagicPacket.send(macStr, ipStr)
+            send(macStr, ipStr)
         } catch (e: IllegalArgumentException) {
             println(e.message)
         } catch (e: Exception) {
@@ -172,6 +172,10 @@ object MagicPacket {
     }
 
     fun createSendPacketSingle(context: Context, item: HistoryItem): Single<String> {
+        return createSendPacketSingle(context, item.title, item.mac, item.ip, item.port)
+    }
+
+    fun createSendPacketSingle(context: Context, item: HistoryIt): Single<String> {
         return createSendPacketSingle(context, item.title, item.mac, item.ip, item.port)
     }
 
@@ -188,25 +192,25 @@ object MagicPacket {
                 .doOnSuccess(MagicPacketSuccessAction(context, title))
     }
 
-    private class MagicPacketSuccessAction constructor(private val context: Context, private val title: String) : Consumer<String> {
-        override fun accept(s: String) {
-            // display sent message to user
-            val msg = String.format("%s to %s", context.getString(R.string.packet_sent), title)
-            WakeOnLanActivity.notifyUser(msg, context)
-        }
-    }
-
-    private class MagicPacketErrorAction constructor(private val context: Context) : io.reactivex.functions.Consumer<Throwable> {
-        override fun accept(throwable: Throwable) {
-            val msg = String.format("%s:\n%s", context.getString(R.string.send_failed), throwable.message)
-            WakeOnLanActivity.notifyUser(msg, context)
-        }
-    }
-
     private class MagicPacketCallable constructor(private val mac: String, private val ip: String, private val port: Int) : Callable<String> {
         @Throws(IOException::class)
         override fun call(): String {
             return send(mac, ip, port)
         }
+    }
+}
+
+internal class MagicPacketSuccessAction constructor(private val context: Context, private val title: String) : Consumer<String> {
+    override fun accept(s: String) {
+        // display sent message to user
+        val msg = String.format("%s to %s", context.getString(R.string.packet_sent), title)
+        WakeOnLanActivity.notifyUser(msg, context)
+    }
+}
+
+internal class MagicPacketErrorAction constructor(private val context: Context) : Consumer<Throwable> {
+    override fun accept(throwable: Throwable) {
+        val msg = String.format("%s:\n%s", context.getString(R.string.send_failed), throwable.message)
+        WakeOnLanActivity.notifyUser(msg, context)
     }
 }

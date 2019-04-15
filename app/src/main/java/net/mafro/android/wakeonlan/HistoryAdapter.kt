@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
@@ -50,6 +51,11 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
     override fun getItemCount(): Int  = historyItems.size
 
+    private val rowClickListener : View.OnClickListener = View.OnClickListener { view ->
+        val itemId = view.getTag(R.id.hist_cell_position_tag) as Int
+        historyController.sendWakePacket(itemId.toLong())
+    }
+
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
         val item = historyItems[position]
 
@@ -58,6 +64,10 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         holder.binding.historyRowMac.text = item.mac
         holder.binding.historyRowIp.text = item.ip
         holder.binding.historyRowPort.text = Integer.toString(item.port)
+
+        holder.binding.root.setTag(R.id.hist_cell_position_tag, item.id)
+        holder.binding.root.setOnClickListener(rowClickListener)
+
         val star = holder.binding.historyRowStar
 
         if (this.showStars) {
