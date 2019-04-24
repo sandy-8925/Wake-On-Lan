@@ -35,23 +35,24 @@ import android.widget.CompoundButton
 import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.annotation.UiThread
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
+import org.apache.commons.lang3.StringUtils
 
 
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, RecyclerView.Adapter<HistoryCellViewHolder>() {
+internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter<HistoryIt, HistoryCellViewHolder>(DIFF_CALLBACK()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<HistoryRowBinding>(inflater, R.layout.history_row, parent, false)
         return HistoryCellViewHolder(binding)
     }
-
-    override fun getItemCount(): Int  = historyItems.size
 
     private val rowClickListener : View.OnClickListener = View.OnClickListener { view ->
         val itemId = view.getTag(R.id.hist_cell_position_tag) as Int
@@ -59,7 +60,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
     }
 
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
-        val item = historyItems[position]
+        val item = getItem(position)
 
         // bind the cursor data to the form items
         holder.binding.historyRowTitle.text = item.title
@@ -94,8 +95,6 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         }
     }
 
-    private var historyItems = emptyList<HistoryIt>()
-
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         // extract record's _ID from tag
         val id = buttonView.tag as Int
@@ -115,8 +114,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
     @UiThread
     internal fun setHistoryItems(historyItems: List<HistoryIt>?) {
-        this.historyItems = historyItems ?: emptyList()
-        notifyDataSetChanged()
+        submitList(historyItems ?: emptyList())
     }
 }
 
@@ -127,5 +125,17 @@ private class UpdateStarredStatusTask(val itemId: Int, val starredVal: Int) : Ru
         val historyItem = historyDb.historyDao().historyItem(itemId)
         historyItem.starred = starredVal
         historyDb.historyDao().updateItem(historyItem)
+    }
+}
+
+private class DIFF_CALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
+    override fun areItemsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean = (oldItem.id == newItem.id)
+
+    override fun areContentsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean {
+        return StringUtils.equals(oldItem.title, newItem.title) &&
+                StringUtils.equals(oldItem.mac, newItem.mac) &&
+                StringUtils.equals(oldItem.ip, newItem.ip) &&
+                oldItem.port == newItem.port &&
+                oldItem.starred == newItem.starred
     }
 }
