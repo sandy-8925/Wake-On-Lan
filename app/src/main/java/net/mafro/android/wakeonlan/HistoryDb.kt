@@ -48,7 +48,7 @@ interface HistoryDao {
     fun doQuery(query : SupportSQLiteQuery) : Cursor
 
     @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME} where ${History.Items._ID} = :id")
-    fun historyItem(id : Long) : HistoryIt
+    fun historyItem(id : Int) : HistoryIt
 
     @Update
     fun updateItem(historyItem : HistoryIt)

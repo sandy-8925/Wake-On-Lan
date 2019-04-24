@@ -73,7 +73,7 @@ class HistoryFragment : Fragment() {
 
     private fun onHistoryItemClick(item: HistoryItem) {
         MagicPacket.createSendPacketSingle(requireContext(), item).doOnSuccess {
-            histHandler.incrementHistory(item.id.toLong())
+            histHandler.incrementHistory(item.id)
         }.subscribe()
     }
 
@@ -130,7 +130,7 @@ class HistoryFragment : Fragment() {
         when (mi.itemId) {
             R.id.menu_wake -> {
                 MagicPacket.createSendPacketSingle(requireContext(), item).doOnSuccess {
-                    histHandler.incrementHistory(item.id.toLong())
+                    histHandler.incrementHistory(item.id)
                 }.subscribe()
                 return true
             }

@@ -139,7 +139,7 @@ internal class HistoryListHandler(private val parent: Activity, private val view
     }
 
     @WorkerThread
-    fun incrementHistory(id: Long) {
+    fun incrementHistory(id: Int) {
         val historyItem = historyDb.historyDao().historyItem(id)
         historyItem.usedCount++
         historyItem.lastUsedDate = System.currentTimeMillis()
@@ -148,7 +148,7 @@ internal class HistoryListHandler(private val parent: Activity, private val view
 
     @WorkerThread
     fun deleteHistory(id: Int) {
-        val historyItem = historyDb.historyDao().historyItem(id.toLong())
+        val historyItem = historyDb.historyDao().historyItem(id)
         historyDb.historyDao().deleteItem(historyItem)
     }
 

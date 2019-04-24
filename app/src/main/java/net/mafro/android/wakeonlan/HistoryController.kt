@@ -14,7 +14,7 @@ internal class HistoryController {
     private val historyDB : HistoryDatabase = historyDb
 
     @AnyThread
-    internal fun sendWakePacket(historyItemId : Long) {
+    internal fun sendWakePacket(historyItemId : Int) {
         Completable.fromRunnable {
             val historyItem = historyDb.historyDao().historyItem(historyItemId)
             MagicPacket.send(historyItem.mac, historyItem.ip, historyItem.port)
@@ -29,7 +29,7 @@ internal class HistoryController {
     @WorkerThread
     @Synchronized
     //TODO: Create a mutex per ID and use that to synchronize instead
-    private fun incrementHistory(id: Long) {
+    private fun incrementHistory(id: Int) {
         val historyItem = historyDB.historyDao().historyItem(id)
         historyItem.usedCount++
         historyItem.lastUsedDate = System.currentTimeMillis()

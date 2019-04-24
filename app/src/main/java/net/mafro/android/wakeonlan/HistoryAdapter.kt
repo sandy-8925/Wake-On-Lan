@@ -53,7 +53,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
     private val rowClickListener : View.OnClickListener = View.OnClickListener { view ->
         val itemId = view.getTag(R.id.hist_cell_position_tag) as Int
-        historyController.sendWakePacket(itemId.toLong())
+        historyController.sendWakePacket(itemId)
     }
 
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
@@ -106,7 +106,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
     }
 
     private fun setIsStarred(id: Int, value: Int) {
-        val historyItem = historyDb.historyDao().historyItem(id.toLong())
+        val historyItem = historyDb.historyDao().historyItem(id)
         historyItem.starred = value
         historyDb.historyDao().updateItem(historyItem)
     }
