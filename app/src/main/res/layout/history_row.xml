@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="@dimen/list_item_height"
@@ -20,7 +20,9 @@
 			android:id="@+id/history_row_title"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textSize="@dimen/font_size" />
+			android:textSize="@dimen/font_size"
+			tools:text="Item title"
+			/>
 
 		<net.mafro.android.widget.StarButton
 			android:id="@+id/history_row_star"
@@ -28,21 +30,26 @@
 			android:layout_height="32dp"
 			android:layout_alignParentTop="true"
 			android:layout_alignParentRight="true"
-			android:clickable="true" />
+			android:clickable="true"
+			/>
 
 		<TextView
 			android:id="@+id/history_row_mac"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
  			android:layout_below="@id/history_row_title"
-			android:textSize="@dimen/font_size" />
+			android:textSize="@dimen/font_size"
+			tools:text="aa:bb:cc:dd:ee:ff"
+			/>
 
 		<TextView
 			android:id="@+id/history_row_ip"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
  			android:layout_below="@id/history_row_mac"
-			android:textSize="@dimen/font_size" />
+			android:textSize="@dimen/font_size"
+			tools:text="192.168.1.255"
+			/>
 		<TextView
 			android:id="@+id/history_row_colon"
 			android:layout_width="wrap_content"
@@ -57,7 +64,9 @@
 			android:layout_height="wrap_content"
 			android:layout_toRightOf="@id/history_row_colon"
 			android:layout_alignTop="@id/history_row_ip"
-			android:textSize="@dimen/font_size" />
+			android:textSize="@dimen/font_size"
+			tools:text="9"
+			/>
 			
 	</RelativeLayout>
 
