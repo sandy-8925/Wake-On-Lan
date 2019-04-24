@@ -36,6 +36,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.annotation.UiThread
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Completable
+import io.reactivex.schedulers.Schedulers
 import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
 
 
@@ -105,10 +107,10 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         }
     }
 
-    private fun setIsStarred(id: Int, value: Int) {
-        val historyItem = historyDb.historyDao().historyItem(id)
-        historyItem.starred = value
-        historyDb.historyDao().updateItem(historyItem)
+    private fun setIsStarred(id: Int, starredVal: Int) {
+        Completable.fromRunnable(UpdateStarredStatusTask(id, starredVal))
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     @UiThread
@@ -119,3 +121,11 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 }
 
 internal class HistoryCellViewHolder(val binding : HistoryRowBinding) : RecyclerView.ViewHolder(binding.root)
+
+private class UpdateStarredStatusTask(val itemId: Int, val starredVal: Int) : Runnable {
+    override fun run() {
+        val historyItem = historyDb.historyDao().historyItem(itemId)
+        historyItem.starred = starredVal
+        historyDb.historyDao().updateItem(historyItem)
+    }
+}
