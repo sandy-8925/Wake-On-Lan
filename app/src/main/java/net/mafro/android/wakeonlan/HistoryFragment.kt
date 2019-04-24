@@ -166,7 +166,7 @@ internal class HistoryViewModel : ViewModel() {
 
     var sortMode: Int = WakeOnLanActivity.CREATED
         set(value) {
-            histListLiveData = createHistListLiveDataObject()
             field = value
+            histListLiveData = createHistListLiveDataObject()
         }
 }
