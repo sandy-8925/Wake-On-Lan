@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools">
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	>
+<androidx.constraintlayout.widget.ConstraintLayout
+	android:layout_width="match_parent"
 	android:layout_height="@dimen/list_item_height"
 	android:padding="3dp">
 
 	<ImageView
 		android:id="@+id/icon"
 		android:layout_width="wrap_content"
-		android:layout_height="fill_parent"
+		android:layout_height="match_parent"
 		android:layout_marginRight="10dp"
-		android:src="@drawable/icon" />
-
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+		android:layout_marginEnd="10dp"
+		android:src="@drawable/icon"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toBottomOf="parent"
+		/>
 
 		<TextView
 			android:id="@+id/history_row_title"
-			android:layout_width="wrap_content"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:textSize="@dimen/font_size"
+			android:layout_marginLeft="10dp"
+			app:layout_constraintLeft_toRightOf="@id/icon"
+			app:layout_constraintRight_toLeftOf="@+id/history_row_star"
+			app:layout_constraintTop_toTopOf="parent"
 			tools:text="Item title"
 			/>
 
@@ -28,16 +36,19 @@
 			android:id="@+id/history_row_star"
 			android:layout_width="32dp"
 			android:layout_height="32dp"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentRight="true"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
 			android:clickable="true"
+			android:focusable="false"
 			/>
 
 		<TextView
 			android:id="@+id/history_row_mac"
-			android:layout_width="fill_parent"
+			android:layout_width="0dp"
 			android:layout_height="wrap_content"
- 			android:layout_below="@id/history_row_title"
+			app:layout_constraintTop_toBottomOf="@id/history_row_title"
+			app:layout_constraintLeft_toLeftOf="@id/history_row_title"
 			android:textSize="@dimen/font_size"
 			tools:text="aa:bb:cc:dd:ee:ff"
 			/>
@@ -46,7 +57,9 @@
 			android:id="@+id/history_row_ip"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
- 			android:layout_below="@id/history_row_mac"
+			app:layout_constraintTop_toBottomOf="@id/history_row_mac"
+			app:layout_constraintLeft_toLeftOf="@id/history_row_title"
+			app:layout_constraintHorizontal_chainStyle="packed"
 			android:textSize="@dimen/font_size"
 			tools:text="192.168.1.255"
 			/>
@@ -54,21 +67,20 @@
 			android:id="@+id/history_row_colon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/history_row_ip"
-			android:layout_alignTop="@id/history_row_ip"
+			app:layout_constraintBottom_toBottomOf="@id/history_row_ip"
+			app:layout_constraintLeft_toRightOf="@id/history_row_ip"
+			app:layout_constraintRight_toLeftOf="@+id/history_row_port"
 			android:textSize="@dimen/font_size"
 			android:text=":" />
 		<TextView
 			android:id="@+id/history_row_port"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/history_row_colon"
-			android:layout_alignTop="@id/history_row_ip"
+			app:layout_constraintTop_toTopOf="@+id/history_row_ip"
+			app:layout_constraintLeft_toRightOf="@id/history_row_colon"
 			android:textSize="@dimen/font_size"
 			tools:text="9"
 			/>
 			
-	</RelativeLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
