@@ -51,8 +51,8 @@ class HistoryIt {
 
 @Dao
 interface HistoryDao {
-    @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME} order by :sortModeColname")
-    fun getHistoryList(sortModeColname : String) : LiveData<List<HistoryIt>>
+    @RawQuery(observedEntities = [HistoryIt::class])
+    fun histItemList(query : SupportSQLiteQuery) : LiveData<List<HistoryIt>>
 
     @RawQuery
     fun doQuery(query : SupportSQLiteQuery) : Cursor

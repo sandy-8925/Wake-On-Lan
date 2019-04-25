@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.sqlite.db.SimpleSQLiteQuery
 import net.mafro.android.wakeonlan.databinding.HistoryFragmentBinding
 
 class HistoryFragment : Fragment() {
@@ -161,7 +162,8 @@ internal class HistoryViewModel : ViewModel() {
             WakeOnLanActivity.USED_COUNT -> History.Items.USED_COUNT
             else -> History.Items.CREATED_DATE
         }
-        return historyDb.historyDao().getHistoryList(sortColumnName)
+        val query = SimpleSQLiteQuery("select * from ${HistoryProvider.HISTORY_TABLE_NAME} order by $sortColumnName desc")
+        return historyDb.historyDao().histItemList(query)
     }
 
     var sortMode: Int = WakeOnLanActivity.CREATED
