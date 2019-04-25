@@ -2,7 +2,17 @@ package net.mafro.android.wakeonlan
 
 import android.database.Cursor
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.RoomDatabase
+import androidx.room.Update
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -27,7 +37,7 @@ class HistoryIt {
     var port : Int = MagicPacket.PORT
 
     @ColumnInfo(name = History.Items.CREATED_DATE)
-    var createdDate : Int = 0
+    var createdDate : Long = 0
 
     @ColumnInfo(name = History.Items.LAST_USED_DATE)
     var lastUsedDate : Long = 0
