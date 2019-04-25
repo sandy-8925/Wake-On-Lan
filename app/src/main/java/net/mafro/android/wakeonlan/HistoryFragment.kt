@@ -72,12 +72,6 @@ class HistoryFragment : Fragment() {
         histViewModel.histListLiveData.observe(this, listDataObserver)
     }
 
-    private fun onHistoryItemClick(item: HistoryItem) {
-        MagicPacket.createSendPacketSingle(requireContext(), item).doOnSuccess {
-            histHandler.incrementHistory(item.id)
-        }.subscribe()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
         menu ?: return

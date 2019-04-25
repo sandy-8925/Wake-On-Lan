@@ -48,7 +48,7 @@ class WidgetConfigure : Activity() {
 
         // Set the result to CANCELED.  This will cause the widget host to cancel
         // out of the widget placement if they press the back button.
-        setResult(Activity.RESULT_CANCELED)
+        setResult(RESULT_CANCELED)
 
         setContentView(R.layout.widget_configure)
         val lv = findViewById<ListView>(R.id.history)

@@ -29,10 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan
 
 import android.app.Activity
-import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteQueryBuilder
-import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -99,45 +97,6 @@ internal class HistoryListHandler(private val parent: Activity, private val view
         return getItem(this.cursor!!)
     }
 
-    fun addToHistory(title: String, mac: String, ip: String, port: Int) {
-        var exists = false
-
-        // don't allow duplicates in history list
-        if (cursor!!.moveToFirst()) {
-            val macColumn = cursor!!.getColumnIndex(History.Items.MAC)
-            val ipColumn = cursor!!.getColumnIndex(History.Items.IP)
-            val portColumn = cursor!!.getColumnIndex(History.Items.PORT)
-
-            do {
-                if (mac == cursor!!.getString(macColumn) && ip == cursor!!.getString(ipColumn) && port == cursor!!.getInt(portColumn)) {
-                    exists = true
-                    break
-                }
-            } while (cursor!!.moveToNext())
-        }
-
-        // create only if the item doesn't exist
-        if (!exists) {
-            val values = ContentValues(4)
-            values.put(History.Items.TITLE, title)
-            values.put(History.Items.MAC, mac)
-            values.put(History.Items.IP, ip)
-            values.put(History.Items.PORT, port)
-            this.parent.contentResolver.insert(History.Items.CONTENT_URI, values)
-        }
-    }
-
-    fun updateHistory(id: Int, title: String, mac: String, ip: String, port: Int) {
-        val values = ContentValues(4)
-        values.put(History.Items.TITLE, title)
-        values.put(History.Items.MAC, mac)
-        values.put(History.Items.IP, ip)
-        values.put(History.Items.PORT, port)
-
-        val itemUri = Uri.withAppendedPath(History.Items.CONTENT_URI, Integer.toString(id))
-        this.parent.contentResolver.update(itemUri, values, null, null)
-    }
-
     @WorkerThread
     fun incrementHistory(id: Int) {
         val historyItem = historyDb.historyDao().historyItem(id)
@@ -154,10 +113,6 @@ internal class HistoryListHandler(private val parent: Activity, private val view
 
     fun addHistoryListClickListener(l: HistoryListClickListener) {
         this.listeners.add(l)
-    }
-
-    fun removeHistoryListClickListener(l: HistoryListClickListener) {
-        this.listeners.remove(l)
     }
 
     companion object {

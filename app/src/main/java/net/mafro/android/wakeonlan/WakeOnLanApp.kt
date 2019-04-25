@@ -10,7 +10,7 @@ class WakeOnLanApp : Application() {
         super.onCreate()
         removeOldPrefs()
         historyDb = Room.databaseBuilder(this, HistoryDatabase::class.java, HistoryProvider.DATABASE_NAME)
-                .addMigrations(Migration_1_2(), Migration_2_3())
+                .addMigrations(MigrationFrom1To2(), MigrationFrom2To3())
                 .build()
         appContext = applicationContext
     }

@@ -78,14 +78,14 @@ abstract class HistoryDatabase : RoomDatabase() {
     abstract fun historyDao() : HistoryDao
 }
 
-internal class Migration_1_2 : Migration(1, 2) {
+internal class MigrationFrom1To2 : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE history ADD COLUMN ${History.Items.USED_COUNT} INTEGER DEFAULT 1;")
         db.execSQL("ALTER TABLE history ADD COLUMN ${History.Items.IS_STARRED} INTEGER DEFAULT 0;")
     }
 }
 
-internal class Migration_2_3 : Migration(2, 3) {
+internal class MigrationFrom2To3 : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
     }
 }

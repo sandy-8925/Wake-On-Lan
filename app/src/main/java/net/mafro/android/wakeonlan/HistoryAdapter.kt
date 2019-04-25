@@ -47,7 +47,7 @@ import org.apache.commons.lang3.StringUtils
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter<HistoryIt, HistoryCellViewHolder>(DIFF_CALLBACK()) {
+internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter<HistoryIt, HistoryCellViewHolder>(DIFFCALLBACK()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<HistoryRowBinding>(inflater, R.layout.history_row, parent, false)
@@ -128,7 +128,7 @@ private class UpdateStarredStatusTask(val itemId: Int, val starredVal: Int) : Ru
     }
 }
 
-private class DIFF_CALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
+private class DIFFCALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
     override fun areItemsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean = (oldItem.id == newItem.id)
 
     override fun areContentsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean {

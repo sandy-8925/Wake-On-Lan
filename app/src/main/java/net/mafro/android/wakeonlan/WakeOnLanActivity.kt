@@ -35,9 +35,9 @@ import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TabHost
-import android.widget.TabHost.OnTabChangeListener
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -49,37 +49,36 @@ import net.mafro.android.wakeonlan.databinding.ActivityMainBinding
 /**
  * @desc    Base activity, handles all UI events except history ListView clicks
  */
-class WakeOnLanActivity : AppCompatActivity(), OnTabChangeListener {
-    private var th: TabHost? = null
-    private var binding: ActivityMainBinding? = null
+class WakeOnLanActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding!!.wolaViewpager.adapter = TabsAdapter(supportFragmentManager, this@WakeOnLanActivity)
-        binding!!.wolaTablayout.setupWithViewPager(binding!!.wolaViewpager)
+        binding.wolaViewpager.adapter = TabsAdapter(supportFragmentManager, this@WakeOnLanActivity)
+        binding.wolaTablayout.setupWithViewPager(binding.wolaViewpager)
         //		doStuff();
     }
 
     private fun doStuff() {
+        val th: TabHost? = findViewById(R.id.tabhost)
         // configure tabs
-        th = findViewById(R.id.tabhost)
 
         // tabs only exist in phone layouts
         if (th != null) {
-            WakeOnLanActivity.isTablet = true
+            isTablet = true
 
             val lam = LocalActivityManager(this, false)
-            th!!.setup(lam)
+            th.setup(lam)
 
-            th!!.addTab(th!!.newTabSpec("tab_history").setIndicator(getString(R.string.tab_history), resources.getDrawable(R.drawable.ical)).setContent(R.id.historyview))
-            th!!.addTab(th!!.newTabSpec("tab_wake").setIndicator(getString(R.string.tab_wake), resources.getDrawable(R.drawable.wake)).setContent(R.id.wakeview))
+            th.addTab(th.newTabSpec("tab_history").setIndicator(getString(R.string.tab_history), resources.getDrawable(R.drawable.ical)).setContent(R.id.historyview))
+            th.addTab(th.newTabSpec("tab_wake").setIndicator(getString(R.string.tab_wake), resources.getDrawable(R.drawable.wake)).setContent(R.id.wakeview))
 
-            th!!.currentTab = 0
+            th.currentTab = 0
 
             // register self as tab changed listener
-            th!!.setOnTabChangedListener(this)
+//            th!!.setOnTabChangedListener(this)
         } else {
             // set the background colour of the titles
             val historytitle = findViewById<TextView>(R.id.historytitle)
@@ -89,7 +88,7 @@ class WakeOnLanActivity : AppCompatActivity(), OnTabChangeListener {
         }
     }
 
-    override fun onTabChanged(tabId: String) {
+    private fun onTabChanged(tabId: String) {
         if (tabId == "tab_wake") {
             // enter typing mode - no clear of form until exit typing mode
             typingMode = true
@@ -119,22 +118,6 @@ class WakeOnLanActivity : AppCompatActivity(), OnTabChangeListener {
         }
     }
 
-    private class TabsAdapter internal constructor(fm: FragmentManager, private val context: Context) : FragmentStatePagerAdapter(fm) {
-
-        override fun getItem(position: Int): Fragment {
-            val tabFragmentEnum = TabFragments.values()[position]
-            return Fragment.instantiate(context, tabFragmentEnum.clazz.name)
-        }
-
-        override fun getCount(): Int {
-            return TabFragments.values().size
-        }
-
-        override fun getPageTitle(position: Int): CharSequence? {
-            return context.resources.getString(TabFragments.values()[position].title)
-        }
-    }
-
     companion object {
         const val TAG = "WakeOnLan"
 
@@ -142,30 +125,46 @@ class WakeOnLanActivity : AppCompatActivity(), OnTabChangeListener {
         const val MENU_ITEM_DELETE = Menu.FIRST + 1
         internal const val SORT_MODE_PREFS_KEY = "sort_mode"
 
-        private const val _editModeID = 0
         private var typingMode = false
 
         private var isTablet = false
-
-        private const val sort_mode: Int = 0
 
         const val CREATED = 0
         const val LAST_USED = 1
         const val USED_COUNT = 2
 
-        private val PROJECTION = arrayOf(History.Items._ID, History.Items.TITLE, History.Items.MAC, History.Items.IP, History.Items.PORT, History.Items.LAST_USED_DATE, History.Items.USED_COUNT, History.Items.IS_STARRED)
-
         private var notification: Toast? = null
 
         fun notifyUser(message: String, context: Context) {
-            if (notification != null) {
-                notification!!.setText(message)
-                notification!!.show()
+            var notif = notification
+            if (notif != null) {
+                notif.setText(message)
+                notif.show()
             } else {
-                notification = Toast.makeText(context, message, Toast.LENGTH_SHORT)
-                notification!!.show()
+                notif = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+                notification = notif
+                notif.show()
             }
         }
     }
 }
 
+private enum class TabFragments(@StringRes val title: Int, val clazz: Class<out Fragment>) {
+    HISTORY(R.string.title_history, HistoryFragment::class.java),
+    WAKE(R.string.title_wake, WakeFragment::class.java)
+}
+
+private class TabsAdapter constructor(fm: FragmentManager, private val context: Context) : FragmentStatePagerAdapter(fm) {
+    override fun getItem(position: Int): Fragment {
+        val tabFragmentEnum = TabFragments.values()[position]
+        return Fragment.instantiate(context, tabFragmentEnum.clazz.name)
+    }
+
+    override fun getCount(): Int {
+        return TabFragments.values().size
+    }
+
+    override fun getPageTitle(position: Int): CharSequence? {
+        return context.resources.getString(TabFragments.values()[position].title)
+    }
+}

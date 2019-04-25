@@ -89,11 +89,10 @@ class HistoryProvider : ContentProvider() {
         qb.setProjectionMap(sHistoryProjectionMap)
 
         // if no sort order is specified use the default
-        val orderBy: String?
-        if (TextUtils.isEmpty(sortOrder)) {
-            orderBy = History.Items.DEFAULT_SORT_ORDER
+        val orderBy: String? = if (TextUtils.isEmpty(sortOrder)) {
+            History.Items.DEFAULT_SORT_ORDER
         } else {
-            orderBy = sortOrder
+            sortOrder
         }
 
         // get the database and run the query
@@ -107,11 +106,9 @@ class HistoryProvider : ContentProvider() {
     }
 
     override fun getType(uri: Uri): String? {
-        when (sUriMatcher.match(uri)) {
-            HISTORY -> return History.Items.CONTENT_TYPE
-
-            HISTORY_ID -> return History.Items.CONTENT_ITEM_TYPE
-
+        return when (sUriMatcher.match(uri)) {
+            HISTORY -> History.Items.CONTENT_TYPE
+            HISTORY_ID -> History.Items.CONTENT_ITEM_TYPE
             else -> throw IllegalArgumentException("Unknown URI $uri")
         }
     }
@@ -122,11 +119,10 @@ class HistoryProvider : ContentProvider() {
             throw IllegalArgumentException("Unknown URI $uri")
         }
 
-        val values: ContentValues
-        if (initialValues != null) {
-            values = ContentValues(initialValues)
+        val values: ContentValues = if (initialValues != null) {
+            ContentValues(initialValues)
         } else {
-            values = ContentValues()
+            ContentValues()
         }
 
         val now = System.currentTimeMillis()
@@ -203,9 +199,6 @@ class HistoryProvider : ContentProvider() {
     }
 
     companion object {
-
-        private const val TAG = "HistoryProvider"
-
         internal const val DATABASE_NAME = "wakeonlan_history.db"
         internal const val DATABASE_VERSION = 3
 
@@ -216,10 +209,9 @@ class HistoryProvider : ContentProvider() {
         private const val HISTORY = 1
         private const val HISTORY_ID = 2
 
-        private val sUriMatcher: UriMatcher
+        private val sUriMatcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
         init {
-            sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
             sUriMatcher.addURI(History.AUTHORITY, "history", HISTORY)
             sUriMatcher.addURI(History.AUTHORITY, "history/#", HISTORY_ID)
 
