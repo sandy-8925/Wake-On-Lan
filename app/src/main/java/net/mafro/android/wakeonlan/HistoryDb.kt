@@ -43,7 +43,7 @@ class HistoryIt {
     var lastUsedDate : Long = 0
 
     @ColumnInfo(name = History.Items.USED_COUNT)
-    var usedCount : Int = 1
+    var usedCount : Int = 0
 
     @ColumnInfo(name = History.Items.IS_STARRED)
     var starred : Int = 0
