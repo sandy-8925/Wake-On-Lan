@@ -165,6 +165,7 @@ internal class WakePacketSaveAction(private val title: String, private val mac: 
             it.mac = mac
             it.ip = ip
             it.port = port
+            it.createdDate = System.currentTimeMillis()
         }
         historyDb.historyDao().addNewItem(newHistoryIt)
     }
