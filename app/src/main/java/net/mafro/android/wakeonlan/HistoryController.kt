@@ -32,7 +32,7 @@ internal class HistoryController {
     private fun incrementHistory(id: Int) {
         val historyItem = historyDB.historyDao().historyItem(id)
         historyItem.usedCount++
-        historyItem.lastUsedDate = System.currentTimeMillis()
+        historyItem.lastUsedDate = Math.max(System.currentTimeMillis(), historyItem.lastUsedDate)
         historyDB.historyDao().updateItem(historyItem)
     }
 }
