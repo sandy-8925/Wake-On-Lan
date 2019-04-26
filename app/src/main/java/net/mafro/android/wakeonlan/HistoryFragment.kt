@@ -2,14 +2,12 @@ package net.mafro.android.wakeonlan
 
 import android.content.Context
 import android.os.Bundle
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import androidx.annotation.UiThread
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -108,40 +106,6 @@ class HistoryFragment : Fragment() {
                 .apply()
 
         return true
-    }
-
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        requireActivity().menuInflater.inflate(R.menu.history_menu, menu)
-    }
-
-    override fun onContextItemSelected(mi: MenuItem): Boolean {
-        // extract data about clicked item
-        val info = mi.menuInfo as AdapterView.AdapterContextMenuInfo
-
-        // extract history item
-        val item = histHandler.getItem(info.position)
-
-        when (mi.itemId) {
-            R.id.menu_wake -> {
-                MagicPacket.createSendPacketSingle(requireContext(), item).doOnSuccess {
-                    histHandler.incrementHistory(item.id)
-                }.subscribe()
-                return true
-            }
-
-            R.id.menu_edit -> {
-                TODO("Implement this!")
-                return true
-            }
-
-            R.id.menu_delete -> {
-                histHandler.deleteHistory(item.id)
-                return true
-            }
-
-            else -> return super.onContextItemSelected(mi)
-        }
     }
 }
 
