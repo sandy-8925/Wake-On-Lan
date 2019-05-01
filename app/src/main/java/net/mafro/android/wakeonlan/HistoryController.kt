@@ -35,11 +35,25 @@ internal class HistoryController {
         historyItem.lastUsedDate = Math.max(System.currentTimeMillis(), historyItem.lastUsedDate)
         historyDB.historyDao().updateItem(historyItem)
     }
+
+    @AnyThread
+    internal fun deleteHistory(historyItemId: Int) {
+        Completable.fromRunnable(DeleteHistItemAction(historyItemId))
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+    }
 }
 
 private class MagicPacketSentAction(val context: Context) : Action {
     override fun run() {
         // display sent message to user
         WakeOnLanActivity.notifyUser(context.getString(R.string.packet_sent), context)
+    }
+}
+
+private class DeleteHistItemAction(private val historyItemId : Int) : Runnable {
+    override fun run() {
+        val histItem = historyDb.historyDao().historyItem(historyItemId)
+        historyDb.historyDao().deleteItem(histItem)
     }
 }

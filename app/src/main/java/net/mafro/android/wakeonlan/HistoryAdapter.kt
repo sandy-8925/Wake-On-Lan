@@ -75,8 +75,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
                     TODO("Implement")
                 }
                 R.id.menu_delete -> {
-//                    histHandler.deleteHistory(item.id)
-                    TODO("Implement")
+                    historyController.deleteHistory(historyItemId)
                 }
             }
             return true
