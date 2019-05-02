@@ -28,7 +28,6 @@ class HistoryFragment : Fragment() {
         return binding.root
     }
 
-    private lateinit var histHandler: HistoryListHandler
     private lateinit var histViewModel: HistoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
