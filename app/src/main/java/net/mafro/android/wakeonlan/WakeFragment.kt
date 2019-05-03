@@ -44,10 +44,10 @@ class WakeFragment : Fragment() {
     }
 
     private val testClickListener: View.OnClickListener = View.OnClickListener {
-        val vtitle = binding.title
-        val vmac = binding.mac
-        val vip = binding.ip
-        val vport = binding.port
+        val vtitle = binding.wakeForm.title
+        val vmac = binding.wakeForm.mac
+        val vip = binding.wakeForm.ip
+        val vport = binding.wakeForm.port
 
         val title = vtitle.text.toString().trim { it <= ' ' }
         val mac = vmac.text.toString().trim { it <= ' ' }
@@ -113,18 +113,18 @@ class WakeFragment : Fragment() {
     @UiThread
     private fun clearForm() {
         // clear the form
-        binding.title.text = null
-        binding.mac.text = null
-        binding.mac.error = null
-        binding.ip.setText(MagicPacket.BROADCAST)
-        binding.port.setText(MagicPacket.PORT.toString())
+        binding.wakeForm.title.text = null
+        binding.wakeForm.mac.text = null
+        binding.wakeForm.mac.error = null
+        binding.wakeForm.ip.setText(MagicPacket.BROADCAST)
+        binding.wakeForm.port.setText(MagicPacket.PORT.toString())
     }
 
     private val saveClickListener: View.OnClickListener = View.OnClickListener {
-        val title = binding.title.text.toString()
-        val formattedMac = binding.mac.text.toString()
-        val ip = binding.ip.text.toString()
-        val port = Integer.parseInt(binding.port.text.toString())
+        val title = binding.wakeForm.title.text.toString()
+        val formattedMac = binding.wakeForm.mac.text.toString()
+        val ip = binding.wakeForm.ip.text.toString()
+        val port = Integer.parseInt(binding.wakeForm.port.text.toString())
 
         clearForm()
 
@@ -137,9 +137,12 @@ class WakeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.wakeForm.executePendingBindings()
+
         // set defaults on Wake tab
-        binding.ip.setText(MagicPacket.BROADCAST)
-        binding.port.setText(Integer.toString(MagicPacket.PORT))
+        binding.wakeForm.ip.setText(MagicPacket.BROADCAST)
+        binding.wakeForm.port.setText(Integer.toString(MagicPacket.PORT))
 
         // register self as listener for wake button
         binding.testWake.setOnClickListener(testClickListener)
@@ -147,7 +150,7 @@ class WakeFragment : Fragment() {
         binding.saveWake.setOnClickListener(saveClickListener)
 
         // register self as mac address field focus change listener
-        binding.mac.onFocusChangeListener = macFocusChangeListener
+        binding.wakeForm.mac.onFocusChangeListener = macFocusChangeListener
     }
 }
 

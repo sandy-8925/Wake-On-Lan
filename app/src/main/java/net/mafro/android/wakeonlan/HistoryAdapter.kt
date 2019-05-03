@@ -29,8 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package net.mafro.android.wakeonlan
 
 import android.view.LayoutInflater
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
@@ -58,34 +57,15 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
     private val contextMenuListener = View.OnCreateContextMenuListener { menu, v, _ ->
         val historyItemId = v.getTag(R.id.hist_cell_position_tag) as Int
-        MenuInflater(v.context).inflate(R.menu.history_menu, menu)
-        val menuItemClickListener = ContextMenuItemClickListener(historyItemId)
-        for(index in 0 until menu.size()) {
-            menu.getItem(index).setOnMenuItemClickListener(menuItemClickListener)
-        }
-    }
-
-    private inner class ContextMenuItemClickListener(private val historyItemId: Int) : MenuItem.OnMenuItemClickListener {
-        override fun onMenuItemClick(item: MenuItem): Boolean {
-            when(item.itemId) {
-                R.id.menu_wake -> {
-                    historyController.sendWakePacket(historyItemId)
-                }
-                R.id.menu_edit -> {
-                    TODO("Implement")
-                }
-                R.id.menu_delete -> {
-                    historyController.deleteHistory(historyItemId)
-                }
-            }
-            return true
-        }
+        contextMenuCreator?.createContextMenu(menu, v, historyItemId)
     }
 
     private val rowClickListener : View.OnClickListener = View.OnClickListener { view ->
         val itemId = view.getTag(R.id.hist_cell_position_tag) as Int
         historyController.sendWakePacket(itemId)
     }
+
+    internal var contextMenuCreator : HistoryItemContextMenuCreator? = null
 
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
         val item = getItem(position)
@@ -98,7 +78,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
         holder.binding.root.setTag(R.id.hist_cell_position_tag, item.id)
         holder.binding.root.setOnClickListener(rowClickListener)
-        holder.binding.root.setOnCreateContextMenuListener(contextMenuListener)
+        if(contextMenuCreator!=null) holder.binding.root.setOnCreateContextMenuListener(contextMenuListener)
 
         val star = holder.binding.historyRowStar
 
@@ -167,4 +147,8 @@ private class DIFFCALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
                 oldItem.port == newItem.port &&
                 oldItem.starred == newItem.starred
     }
+}
+
+interface HistoryItemContextMenuCreator {
+    fun createContextMenu(menu : Menu, view : View, historyItemId : Int)
 }

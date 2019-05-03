@@ -64,9 +64,37 @@ class HistoryFragment : Fragment() {
 //        // register main Activity as context menu handler
 //        registerForContextMenu(binding.history)
         historyAdapter = HistoryAdapter(true)
+        historyAdapter.contextMenuCreator = ContextMenuCreator()
         binding.history.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.history.adapter = historyAdapter
         histViewModel.histListLiveData.observe(this, listDataObserver)
+    }
+
+    private inner class ContextMenuCreator : HistoryItemContextMenuCreator {
+        override fun createContextMenu(menu: Menu, view: View, historyItemId: Int) {
+            MenuInflater(view.context).inflate(R.menu.history_menu, menu)
+            val menuItemClickListener = ContextMenuItemClickListener(historyItemId)
+            for(index in 0 until menu.size()) {
+                menu.getItem(index).setOnMenuItemClickListener(menuItemClickListener)
+            }
+        }
+    }
+
+    private inner class ContextMenuItemClickListener(private val historyItemId: Int) : MenuItem.OnMenuItemClickListener {
+        override fun onMenuItemClick(item: MenuItem): Boolean {
+            when(item.itemId) {
+                R.id.menu_wake -> {
+                    historyController.sendWakePacket(historyItemId)
+                }
+                R.id.menu_edit -> {
+                    createEditDialogInstance(historyItemId).show(fragmentManager, EDIT_DIALOG_TAG)
+                }
+                R.id.menu_delete -> {
+                    historyController.deleteHistory(historyItemId)
+                }
+            }
+            return true
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {

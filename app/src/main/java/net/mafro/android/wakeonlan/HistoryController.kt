@@ -42,6 +42,19 @@ internal class HistoryController {
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
+
+    @AnyThread
+    internal fun updateHistoryItem(item : HistoryIt) {
+        Completable.fromRunnable(UpdateHistItemAction(item))
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+    }
+}
+
+internal class UpdateHistItemAction(private val item: HistoryIt) : Runnable {
+    override fun run() {
+        historyDb.historyDao().updateItem(item)
+    }
 }
 
 private class MagicPacketSentAction(val context: Context) : Action {

@@ -14,7 +14,9 @@
         android:orientation="vertical"
         >
 
-        <include layout="@layout/wake_form" />
+        <include layout="@layout/wake_form"
+            android:id="@+id/wake_form"
+            />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
