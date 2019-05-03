@@ -70,15 +70,11 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
         val item = getItem(position)
 
-        // bind the cursor data to the form items
-        holder.binding.historyRowTitle.text = item.title
-        holder.binding.historyRowMac.text = item.mac
-        holder.binding.historyRowIp.text = item.ip
-        holder.binding.historyRowPort.text = Integer.toString(item.port)
-
         holder.binding.root.setTag(R.id.hist_cell_position_tag, item.id)
         holder.binding.root.setOnClickListener(rowClickListener)
         if(contextMenuCreator!=null) holder.binding.root.setOnCreateContextMenuListener(contextMenuListener)
+
+        holder.binding.historyItem = item
 
         val star = holder.binding.historyRowStar
 
