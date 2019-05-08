@@ -81,9 +81,9 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
         holder.binding.historyItem = item
 
-        val star = holder.binding.historyRowStar
-
         if (this.showStars) {
+            val star = holder.binding.historyRowStar
+
             // remove click handler to prevent recursive calls
             star.setOnCheckedChangeListener(null)
 
