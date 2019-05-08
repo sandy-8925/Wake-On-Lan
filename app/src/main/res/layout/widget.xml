@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:gravity="center|center_vertical"
 	android:layout_width="match_parent"
@@ -10,11 +11,14 @@
 		android:id="@+id/appwidget_button"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:src="@drawable/icon" />
+		android:src="@drawable/icon"
+		tools:ignore="ContentDescription" />
 
-	<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	<TextView
 		android:id="@+id/appwidget_text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal|center_vertical" />
+		android:gravity="center_horizontal|center_vertical"
+		tools:text="Item title"
+		/>
 </LinearLayout>
