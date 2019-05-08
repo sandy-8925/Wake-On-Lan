@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="hist_cell_position_tag" type="id" />
+    <item name="hist_cell_itemid_tag" type="id" />
 </resources>

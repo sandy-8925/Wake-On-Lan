@@ -89,7 +89,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
             star.setOnCheckedChangeListener(this)
 
             // save our record _ID in the star's tag
-            star.tag = item.id
+            star.setTag(R.id.hist_cell_itemid_tag, item.id)
         } else {
             // disable the star button
             star.isClickable = false
@@ -100,7 +100,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         // extract record's _ID from tag
-        val id = buttonView.tag as Int
+        val id = buttonView.getTag(R.id.hist_cell_itemid_tag) as Int
 
         if (isChecked) {
             historyController.setIsStarred(id, 1)
