@@ -66,7 +66,6 @@ class WidgetConfigure : Activity() {
         })
 
         // get the widget id
-        val intent = intent
         widgetId = WidgetProvider.getWidgetId(intent)
 
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -84,7 +83,7 @@ class WidgetConfigure : Activity() {
 
         val resultValue = Intent()
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-        setResult(Activity.RESULT_OK, resultValue)
+        setResult(RESULT_OK, resultValue)
         finish()
     }
 
