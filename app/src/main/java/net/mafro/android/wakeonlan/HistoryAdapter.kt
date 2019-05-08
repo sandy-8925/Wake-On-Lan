@@ -50,6 +50,17 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<HistoryRowBinding>(inflater, R.layout.history_row, parent, false)
+        if(showStars) {
+            binding.historyRowStar.isClickable = true
+            binding.historyRowStar.noRender = false
+            binding.historyRowStar.render()
+//            binding.historyRowStar.visibility = View.VISIBLE
+        } else {
+            binding.historyRowStar.isClickable = false
+            binding.historyRowStar.noRender = true
+            binding.historyRowStar.render()
+//            binding.historyRowStar.visibility = View.INVISIBLE
+        }
         return HistoryCellViewHolder(binding)
     }
 
@@ -81,8 +92,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
             star.setOnCheckedChangeListener(null)
 
             // change the star state if different
-            val starred = item.starred != 0    // non-zero == true
-            star.isChecked = starred
+            star.isChecked = item.starred != 0
             star.render()
 
             // add event listener to star button
@@ -90,11 +100,6 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
             // save our record _ID in the star's tag
             star.setTag(R.id.hist_cell_itemid_tag, item.id)
-        } else {
-            // disable the star button
-            star.isClickable = false
-            star.noRender = true
-            star.render()
         }
     }
 
