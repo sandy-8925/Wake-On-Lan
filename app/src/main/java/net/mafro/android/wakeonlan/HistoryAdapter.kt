@@ -39,8 +39,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
 import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
 import org.apache.commons.lang3.StringUtils
 
@@ -105,16 +103,10 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         val id = buttonView.tag as Int
 
         if (isChecked) {
-            setIsStarred(id, 1)
+            historyController.setIsStarred(id, 1)
         } else {
-            setIsStarred(id, 0)
+            historyController.setIsStarred(id, 0)
         }
-    }
-
-    private fun setIsStarred(id: Int, starredVal: Int) {
-        Completable.fromRunnable(UpdateStarredStatusTask(id, starredVal))
-                .subscribeOn(Schedulers.io())
-                .subscribe()
     }
 
     @UiThread
@@ -124,14 +116,6 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 }
 
 internal class HistoryCellViewHolder(val binding : HistoryRowBinding) : RecyclerView.ViewHolder(binding.root)
-
-private class UpdateStarredStatusTask(val itemId: Int, val starredVal: Int) : Runnable {
-    override fun run() {
-        val historyItem = historyDb.historyDao().historyItem(itemId)
-        historyItem.starred = starredVal
-        historyDb.historyDao().updateItem(historyItem)
-    }
-}
 
 private class DIFFCALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
     override fun areItemsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean = (oldItem.id == newItem.id)

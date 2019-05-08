@@ -49,6 +49,21 @@ internal class HistoryController {
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
+
+    @AnyThread
+    internal fun setIsStarred(id: Int, starredVal: Int) {
+        Completable.fromRunnable(UpdateStarredStatusTask(id, starredVal))
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+    }
+}
+
+private class UpdateStarredStatusTask(val itemId: Int, val starredVal: Int) : Runnable {
+    override fun run() {
+        val historyItem = historyDb.historyDao().historyItem(itemId)
+        historyItem.starred = starredVal
+        historyDb.historyDao().updateItem(historyItem)
+    }
 }
 
 internal class UpdateHistItemAction(private val item: HistoryIt) : Runnable {
