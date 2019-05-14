@@ -40,6 +40,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
+import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
 
 
@@ -87,7 +88,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
             star.setOnCheckedChangeListener(null)
 
             // change the star state if different
-            star.isChecked = item.starred != 0
+            star.isChecked = BooleanUtils.toBoolean(item.starred)
 
             // add event listener to star button
             star.setOnCheckedChangeListener(this)
@@ -101,11 +102,8 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         // extract record's _ID from tag
         val id = buttonView.getTag(R.id.hist_cell_itemid_tag) as Int
 
-        if (isChecked) {
-            historyController.setIsStarred(id, 1)
-        } else {
-            historyController.setIsStarred(id, 0)
-        }
+        val starredVal = BooleanUtils.toInteger(isChecked)
+        historyController.setIsStarred(id, starredVal)
     }
 
     @UiThread
