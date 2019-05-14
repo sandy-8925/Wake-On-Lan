@@ -57,6 +57,8 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
             binding.historyRowStar.isClickable = false
             binding.historyRowStar.visibility = View.INVISIBLE
         }
+        binding.root.setOnClickListener(rowClickListener)
+        if(contextMenuCreator!=null) binding.root.setOnCreateContextMenuListener(contextMenuListener)
         return HistoryCellViewHolder(binding)
     }
 
@@ -76,9 +78,6 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
         val item = getItem(position)
 
         holder.binding.root.setTag(R.id.hist_cell_position_tag, item.id)
-        holder.binding.root.setOnClickListener(rowClickListener)
-        if(contextMenuCreator!=null) holder.binding.root.setOnCreateContextMenuListener(contextMenuListener)
-
         holder.binding.historyItem = item
 
         if (this.showStars) {
