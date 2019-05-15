@@ -43,11 +43,10 @@ import net.mafro.android.wakeonlan.databinding.HistoryRowBinding
 import org.apache.commons.lang3.BooleanUtils
 import org.apache.commons.lang3.StringUtils
 
-
 /**
  * @desc    Custom adapter to aid in UI binding
  */
-internal class HistoryAdapter internal constructor(private val showStars: Boolean) : OnCheckedChangeListener, ListAdapter<HistoryIt, HistoryCellViewHolder>(DIFFCALLBACK()) {
+internal open class BaseHistoryItemAdapter internal constructor(private val showStars: Boolean, diffCallback: DiffUtil.ItemCallback<HistoryIt>) : OnCheckedChangeListener, ListAdapter<HistoryIt, HistoryCellViewHolder>(diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<HistoryRowBinding>(inflater, R.layout.history_row, parent, false)
@@ -59,21 +58,15 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
             binding.historyRowStar.visibility = View.INVISIBLE
         }
         binding.root.setOnClickListener(rowClickListener)
-        if(contextMenuCreator!=null) binding.root.setOnCreateContextMenuListener(contextMenuListener)
         return HistoryCellViewHolder(binding)
-    }
-
-    private val contextMenuListener = View.OnCreateContextMenuListener { menu, v, _ ->
-        val historyItemId = v.getTag(R.id.hist_cell_position_tag) as Int
-        contextMenuCreator?.createContextMenu(menu, v, historyItemId)
     }
 
     private val rowClickListener : View.OnClickListener = View.OnClickListener { view ->
         val itemId = view.getTag(R.id.hist_cell_position_tag) as Int
-        historyController.sendWakePacket(itemId)
+        itemClickListener?.onClick(itemId)
     }
 
-    internal var contextMenuCreator : HistoryItemContextMenuCreator? = null
+    internal var itemClickListener : HistoryItemListClickListener? = null
 
     override fun onBindViewHolder(holder: HistoryCellViewHolder, position: Int) {
         val item = getItem(position)
@@ -101,7 +94,6 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         // extract record's _ID from tag
         val id = buttonView.getTag(R.id.hist_cell_itemid_tag) as Int
-
         val starredVal = BooleanUtils.toInteger(isChecked)
         historyController.setIsStarred(id, starredVal)
     }
@@ -114,7 +106,7 @@ internal class HistoryAdapter internal constructor(private val showStars: Boolea
 
 internal class HistoryCellViewHolder(val binding : HistoryRowBinding) : RecyclerView.ViewHolder(binding.root)
 
-private class DIFFCALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
+private class HistoryListDiffCallback : DiffUtil.ItemCallback<HistoryIt>() {
     override fun areItemsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean = (oldItem.id == newItem.id)
 
     override fun areContentsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean {
@@ -128,4 +120,23 @@ private class DIFFCALLBACK : DiffUtil.ItemCallback<HistoryIt>() {
 
 interface HistoryItemContextMenuCreator {
     fun createContextMenu(menu : Menu, view : View, historyItemId : Int)
+}
+
+interface HistoryItemListClickListener {
+    fun onClick(itemId : Int)
+}
+
+internal class HistoryAdapter : BaseHistoryItemAdapter(true, HistoryListDiffCallback()) {
+    internal var contextMenuCreator : HistoryItemContextMenuCreator? = null
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCellViewHolder {
+        val holder = super.onCreateViewHolder(parent, viewType)
+        if(contextMenuCreator!=null) holder.binding.root.setOnCreateContextMenuListener(contextMenuListener)
+        return holder
+    }
+
+    private val contextMenuListener = View.OnCreateContextMenuListener { menu, v, _ ->
+        val historyItemId = v.getTag(R.id.hist_cell_position_tag) as Int
+        contextMenuCreator?.createContextMenu(menu, v, historyItemId)
+    }
 }

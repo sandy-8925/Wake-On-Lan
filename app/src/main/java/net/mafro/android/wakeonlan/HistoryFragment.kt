@@ -63,11 +63,18 @@ class HistoryFragment : Fragment() {
 //
 //        // register main Activity as context menu handler
 //        registerForContextMenu(binding.history)
-        historyAdapter = HistoryAdapter(true)
+        historyAdapter = HistoryAdapter()
         historyAdapter.contextMenuCreator = ContextMenuCreator()
+        historyAdapter.itemClickListener = ItemClickListener()
         binding.history.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         binding.history.adapter = historyAdapter
         histViewModel.histListLiveData.observe(this, listDataObserver)
+    }
+
+    private inner class ItemClickListener : HistoryItemListClickListener {
+        override fun onClick(itemId: Int) {
+            historyController.sendWakePacket(itemId)
+        }
     }
 
     private inner class ContextMenuCreator : HistoryItemContextMenuCreator {
