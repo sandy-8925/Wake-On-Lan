@@ -106,7 +106,7 @@ internal open class BaseHistoryItemAdapter internal constructor(private val show
 
 internal class HistoryCellViewHolder(val binding : HistoryRowBinding) : RecyclerView.ViewHolder(binding.root)
 
-private class HistoryListDiffCallback : DiffUtil.ItemCallback<HistoryIt>() {
+internal class HistoryListDiffCallback : DiffUtil.ItemCallback<HistoryIt>() {
     override fun areItemsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean = (oldItem.id == newItem.id)
 
     override fun areContentsTheSame(oldItem: HistoryIt, newItem: HistoryIt): Boolean {

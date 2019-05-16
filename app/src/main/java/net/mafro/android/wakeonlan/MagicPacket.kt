@@ -171,12 +171,8 @@ object MagicPacket {
 
     }
 
-    fun createSendPacketSingle(context: Context, item: HistoryItem): Single<String> {
-        return createSendPacketSingle(context, item.title, item.mac, item.ip, item.port)
-    }
-
-    fun createSendPacketSingle(context: Context, item: HistoryIt): Single<String> {
-        return createSendPacketSingle(context, item.title, item.mac, item.ip, item.port)
+    internal fun sendPacket(context: Context, item: HistoryIt) {
+        createSendPacketSingle(context, item.title, item.mac, item.ip, item.port).subscribe()
     }
 
     fun sendPacket(context: Context, title: String, mac: String, ip: String, port: Int) {

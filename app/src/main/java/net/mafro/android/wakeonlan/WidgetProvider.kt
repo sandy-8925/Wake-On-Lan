@@ -52,7 +52,7 @@ class WidgetProvider : AppWidgetProvider() {
         val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
 
         for (widget_id in appWidgetIds) {
-            val item = loadItemPref(settings, widget_id)
+            val item = loadItemFromPref(settings, widget_id)
                     ?: // item or preferences missing
                     // TODO: delete the widget probably (can't find a way to do this).
                     // maybe set the title of the widget to ERROR
@@ -67,20 +67,21 @@ class WidgetProvider : AppWidgetProvider() {
         val intentAction = intent.action ?: return
 
         if (intentAction.startsWith(WIDGET_ONCLICK)) {
-            val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
-
             // get the widget id
             val widgetId = getWidgetId(intent)
             if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 return
             }
 
-            // get the HistoryItem associated with the widget_id
-            val item = loadItemPref(settings, widgetId)
-
-            // send the packet
-            MagicPacket.sendPacket(context, item!!.title, item.mac, item.ip, item.port)
+            handleWidgetClick(context, widgetId)
         }
+    }
+
+    private fun handleWidgetClick(context: Context, widgetId: Int) {
+        val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
+        // get the HistoryItem associated with the widget_id
+        val item = loadItemFromPref(settings, widgetId)
+        if (item != null) MagicPacket.sendPacket(context, item)
     }
 
     override fun onDeleted(context: Context, id: IntArray) {
@@ -94,24 +95,18 @@ class WidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        private const val SETTINGS_PREFIX = "widget_"
-        const val WIDGET_ONCLICK = "net.mafro.android.wakeonlan.WidgetOnClick"
-
         /**
          * @desc    gets the widget id from an intent
          */
-        fun getWidgetId(intent: Intent): Int {
-            val extras = intent.extras
-            return extras?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-                    ?: AppWidgetManager.INVALID_APPWIDGET_ID
-        }
+        fun getWidgetId(intent: Intent): Int =
+                intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
 
         /**
          * @desc    configures a widget for the first time. Usually called when creating a widget
          * for the first time or initialising existing widgets when the AppWidgetManager
          * restarts (usually when the phone reboots).
          */
-        fun configureWidget(widget_id: Int, item: HistoryItem, context: Context) {
+        fun configureWidget(widget_id: Int, item: HistoryIt, context: Context) {
             val views = RemoteViews(context.packageName, R.layout.widget)
             views.setTextViewText(R.id.appwidget_text, item.title)
 
@@ -126,56 +121,48 @@ class WidgetProvider : AppWidgetProvider() {
         private fun getPendingSelfIntent(context: Context, widget_id: Int, action: String): PendingIntent {
             val intent = Intent(context, WidgetProvider::class.java)
             intent.action = action
-            val bundle = Bundle()
-            bundle.putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widget_id)
+            val bundle = Bundle().apply { putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widget_id) }
             intent.putExtras(bundle)
-            return PendingIntent.getBroadcast(context, 0, intent, 0)
+            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         /**
          * @desc    saves the given history item/widget_id combination
          */
-        fun saveItemPref(settings: SharedPreferences, item: HistoryItem, widget_id: Int) {
-            val editor = settings.edit()
-
+        fun saveItemPref(settings: SharedPreferences, itemId: Int, widget_id: Int) {
             // store HistoryItem details in settings
-            editor.putInt(SETTINGS_PREFIX + widget_id, item.id)
-            editor.putString(SETTINGS_PREFIX + widget_id + History.Items.TITLE, item.title)
-            editor.putString(SETTINGS_PREFIX + widget_id + History.Items.MAC, item.mac)
-            editor.putString(SETTINGS_PREFIX + widget_id + History.Items.IP, item.ip)
-            editor.putInt(SETTINGS_PREFIX + widget_id + History.Items.PORT, item.port)
-            editor.apply()
+            settings.edit()
+                    .putInt(SETTINGS_PREFIX + widget_id, itemId)
+                    .apply()
         }
 
-        fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
-            val editor = settings.edit()
-            editor.remove(SETTINGS_PREFIX + widget_id)
-            editor.remove(SETTINGS_PREFIX + widget_id + History.Items.TITLE)
-            editor.remove(SETTINGS_PREFIX + widget_id + History.Items.MAC)
-            editor.remove(SETTINGS_PREFIX + widget_id + History.Items.IP)
-            editor.remove(SETTINGS_PREFIX + widget_id + History.Items.PORT)
-            editor.apply()
-        }
-
-        /**
-         * @desc    load the HistoryItem associated with a widget_id
-         */
-        fun loadItemPref(settings: SharedPreferences, widget_id: Int): HistoryItem? {
-            // get item_id
-            val itemId = settings.getInt(SETTINGS_PREFIX + widget_id, -1)
-
-            if (itemId == -1) {
-                // No item_id found for given widget return null
-                return null
-            }
-
-            val title = settings.getString(SETTINGS_PREFIX + widget_id + History.Items.TITLE, "")
-            val mac = settings.getString(SETTINGS_PREFIX + widget_id + History.Items.MAC, "")
-            val ip = settings.getString(SETTINGS_PREFIX + widget_id + History.Items.IP, "")
-            val port = settings.getInt(SETTINGS_PREFIX + widget_id + History.Items.PORT, -1)
-
-            return HistoryItem(itemId, title, mac, ip, port)
-        }
     }
 
+}
+
+private const val SETTINGS_PREFIX = "widget_"
+private const val WIDGET_ONCLICK = "net.mafro.android.wakeonlan.WidgetOnClick"
+
+/**
+ * @desc    load the HistoryItem associated with a widget_id
+ */
+private fun loadItemFromPref(settings: SharedPreferences, widget_id: Int): HistoryIt? {
+    // get item_id
+    val itemId = settings.getInt(SETTINGS_PREFIX + widget_id, -1)
+
+    return if (itemId == -1) {
+        // No item_id found for given widget return null
+        null
+    } else historyDb.historyDao().historyItem(itemId)
+
+}
+
+private fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
+    settings.edit()
+            .remove(SETTINGS_PREFIX + widget_id)
+            .remove(SETTINGS_PREFIX + widget_id + History.Items.TITLE)
+            .remove(SETTINGS_PREFIX + widget_id + History.Items.MAC)
+            .remove(SETTINGS_PREFIX + widget_id + History.Items.IP)
+            .remove(SETTINGS_PREFIX + widget_id + History.Items.PORT)
+            .apply()
 }

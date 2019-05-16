@@ -70,6 +70,6 @@ class EditHistoryItemDialog : DialogFragment() {
     }
 }
 
-private class LoadHistoryItemTask(private val itemId: Int) : Callable<HistoryIt> {
+internal class LoadHistoryItemTask(private val itemId: Int) : Callable<HistoryIt> {
     override fun call(): HistoryIt = historyDb.historyDao().historyItem(itemId)
 }

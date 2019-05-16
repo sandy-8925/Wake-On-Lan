@@ -28,20 +28,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.ListView
+import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
+import net.mafro.android.wakeonlan.databinding.WidgetConfigureBinding
 
 /**
  * @desc    This class is used to configure the home screen widget
  */
-class WidgetConfigure : Activity() {
+class WidgetConfigure : AppCompatActivity() {
+    private val listObserver: Observer<List<HistoryIt>> = Observer {
+        adapter.setHistoryItems(it)
+    }
+    private lateinit var binding: WidgetConfigureBinding
     private var widgetId: Int = 0
-    private var settings: SharedPreferences? = null
-
+    private lateinit var settings: SharedPreferences
+    private lateinit var adapter : BaseHistoryItemAdapter
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,41 +67,55 @@ class WidgetConfigure : Activity() {
         // out of the widget placement if they press the back button.
         setResult(RESULT_CANCELED)
 
-        setContentView(R.layout.widget_configure)
-        val lv = findViewById<ListView>(R.id.history)
-        val historyListHandler = HistoryListHandler(this, lv)
-
-        settings = getSharedPreferences(WakeOnLanActivity.TAG, 0)
-        val sortMode = settings!!.getInt("sort_mode", WakeOnLanActivity.CREATED)
-        historyListHandler.bind(sortMode)
-
-        // add on click listener
-        historyListHandler.addHistoryListClickListener(object : HistoryListClickListener {
-            override fun onClick(item: HistoryItem) {
-                selected(item)
-            }
-        })
-
         // get the widget id
         widgetId = WidgetProvider.getWidgetId(intent)
 
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // no valid widget id; bailing
             finish()
+            return
         }
+
+        binding = DataBindingUtil.setContentView(this, R.layout.widget_configure)
+        settings = getSharedPreferences(WakeOnLanActivity.TAG, 0)
+
+        binding.widgetConfigureList.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        adapter = BaseHistoryItemAdapter(false, HistoryListDiffCallback()).apply {
+            itemClickListener = object : HistoryItemListClickListener {
+                override fun onClick(itemId: Int) { selected(itemId) }
+            }
+        }
+        binding.widgetConfigureList.adapter = adapter
+
+        val viewModel = ViewModelProviders.of(this).get(WidgetConfigureViewModel::class.java)
+        viewModel.histListLiveData.observe(this, listObserver)
     }
 
-    private fun selected(item: HistoryItem) {
+    @UiThread
+    private fun selected(itemId: Int) {
         // save selected item id to the settings.
-        WidgetProvider.saveItemPref(settings!!, item, widgetId)
+        WidgetProvider.saveItemPref(settings, itemId, widgetId)
 
         // configure the widget
-        WidgetProvider.configureWidget(widgetId, item, this)
+        Single.fromCallable(LoadHistoryItemTask(itemId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSuccess(ConfigureWidgetAction(widgetId, applicationContext))
+                .subscribe()
 
-        val resultValue = Intent()
-        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+        val resultValue = Intent().apply { putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId) }
         setResult(RESULT_OK, resultValue)
         finish()
     }
 
+}
+
+internal class WidgetConfigureViewModel : ViewModel() {
+    val histListLiveData : LiveData<List<HistoryIt>> = createHistListLiveDataObject(WakeOnLanActivity.USED_COUNT)
+}
+
+private class ConfigureWidgetAction(private val widgetId: Int, private val context: Context) : Consumer<HistoryIt> {
+    override fun accept(item: HistoryIt) {
+        WidgetProvider.configureWidget(widgetId, item, context)
+    }
 }

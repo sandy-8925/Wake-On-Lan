@@ -144,23 +144,23 @@ class HistoryFragment : Fragment() {
 }
 
 internal class HistoryViewModel : ViewModel() {
-    var histListLiveData : LiveData<List<HistoryIt>> = createHistListLiveDataObject()
-        private set
-
-    private fun createHistListLiveDataObject() : LiveData<List<HistoryIt>> {
-        val sortColumnName = when(sortMode) {
-            WakeOnLanActivity.CREATED -> History.Items.CREATED_DATE
-            WakeOnLanActivity.LAST_USED -> History.Items.LAST_USED_DATE
-            WakeOnLanActivity.USED_COUNT -> History.Items.USED_COUNT
-            else -> History.Items.CREATED_DATE
-        }
-        val query = SimpleSQLiteQuery("select * from ${HistoryProvider.HISTORY_TABLE_NAME} order by $sortColumnName desc")
-        return historyDb.historyDao().histItemList(query)
-    }
-
     var sortMode: Int = WakeOnLanActivity.CREATED
         set(value) {
             field = value
-            histListLiveData = createHistListLiveDataObject()
+            histListLiveData = createHistListLiveDataObject(value)
         }
+
+    var histListLiveData : LiveData<List<HistoryIt>> = createHistListLiveDataObject(sortMode)
+        private set
+}
+
+internal fun createHistListLiveDataObject(sortMode: Int) : LiveData<List<HistoryIt>> {
+    val sortColumnName = when(sortMode) {
+        WakeOnLanActivity.CREATED -> History.Items.CREATED_DATE
+        WakeOnLanActivity.LAST_USED -> History.Items.LAST_USED_DATE
+        WakeOnLanActivity.USED_COUNT -> History.Items.USED_COUNT
+        else -> History.Items.CREATED_DATE
+    }
+    val query = SimpleSQLiteQuery("select * from ${HistoryProvider.HISTORY_TABLE_NAME} order by $sortColumnName desc")
+    return historyDb.historyDao().histItemList(query)
 }
