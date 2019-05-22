@@ -78,10 +78,10 @@ class WidgetProvider : AppWidgetProvider() {
     }
 
     private fun handleWidgetClick(context: Context, widgetId: Int) {
-        val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
+        val prefs = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
         // get the HistoryItem associated with the widget_id
-        val item = loadItemFromPref(settings, widgetId)
-        if (item != null) MagicPacket.sendPacket(context, item)
+        val itemId = getItemIdForWidgetId(prefs, widgetId)
+        historyController.sendWakePacket(itemId)
     }
 
     override fun onDeleted(context: Context, id: IntArray) {
@@ -135,16 +135,18 @@ class WidgetProvider : AppWidgetProvider() {
     /**
      * @desc    load the HistoryItem associated with a widget_id
      */
-    private fun loadItemFromPref(settings: SharedPreferences, widget_id: Int): HistoryIt? {
+    private fun loadItemFromPref(prefs: SharedPreferences, widget_id: Int): HistoryIt? {
         // get item_id
-        val itemId = settings.getInt(SETTINGS_PREFIX + widget_id, -1)
-
+        val itemId = getItemIdForWidgetId(prefs, widget_id)
         return if (itemId == -1) {
             // No item_id found for given widget return null
             null
         } else historyDb.historyDao().historyItem(itemId)
 
     }
+
+    private fun getItemIdForWidgetId(prefs: SharedPreferences, widget_id: Int) =
+            prefs.getInt(SETTINGS_PREFIX + widget_id, -1)
 
     private fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
         settings.edit()
