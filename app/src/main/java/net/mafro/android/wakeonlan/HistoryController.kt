@@ -1,5 +1,6 @@
 package net.mafro.android.wakeonlan
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.annotation.WorkerThread
@@ -13,6 +14,7 @@ internal val historyController : HistoryController = HistoryController()
 internal class HistoryController {
     private val historyDB : HistoryDatabase = historyDb
 
+    @SuppressLint("CheckResult")
     @AnyThread
     internal fun sendWakePacket(historyItemId : Int) {
         Completable.fromRunnable {
@@ -21,9 +23,7 @@ internal class HistoryController {
             incrementHistory(historyItemId)
         }.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(MagicPacketErrorAction(appContext))
-                .doOnComplete(MagicPacketSentAction(appContext))
-                .subscribe()
+                .subscribe(MagicPacketSentAction(appContext), MagicPacketErrorAction(appContext))
     }
 
     @WorkerThread
