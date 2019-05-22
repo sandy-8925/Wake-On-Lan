@@ -87,10 +87,10 @@ class WidgetProvider : AppWidgetProvider() {
     override fun onDeleted(context: Context, id: IntArray) {
         super.onDeleted(context, id)
 
-        val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
+        val prefs = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
 
         for (anId in id) {
-            deleteItemPref(settings, anId)
+            deleteItemPref(prefs, anId)
         }
     }
 
@@ -148,8 +148,8 @@ class WidgetProvider : AppWidgetProvider() {
     private fun getItemIdForWidgetId(prefs: SharedPreferences, widget_id: Int) =
             prefs.getInt(SETTINGS_PREFIX + widget_id, -1)
 
-    private fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
-        settings.edit()
+    private fun deleteItemPref(prefs: SharedPreferences, widget_id: Int) {
+        prefs.edit()
                 .remove(SETTINGS_PREFIX + widget_id)
                 .remove(SETTINGS_PREFIX + widget_id + History.Items.TITLE)
                 .remove(SETTINGS_PREFIX + widget_id + History.Items.MAC)
