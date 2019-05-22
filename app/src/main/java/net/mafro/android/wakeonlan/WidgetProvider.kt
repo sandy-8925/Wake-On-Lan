@@ -96,17 +96,11 @@ class WidgetProvider : AppWidgetProvider() {
 
     companion object {
         /**
-         * @desc    gets the widget id from an intent
-         */
-        fun getWidgetId(intent: Intent): Int =
-                intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-
-        /**
          * @desc    configures a widget for the first time. Usually called when creating a widget
          * for the first time or initialising existing widgets when the AppWidgetManager
          * restarts (usually when the phone reboots).
          */
-        fun configureWidget(widget_id: Int, item: HistoryIt, context: Context) {
+        internal fun configureWidget(widget_id: Int, item: HistoryIt, context: Context) {
             val views = RemoteViews(context.packageName, R.layout.widget)
             views.setTextViewText(R.id.appwidget_text, item.title)
 
@@ -119,17 +113,17 @@ class WidgetProvider : AppWidgetProvider() {
         }
 
         private fun getPendingSelfIntent(context: Context, widget_id: Int, action: String): PendingIntent {
-            val intent = Intent(context, WidgetProvider::class.java)
-            intent.action = action
             val bundle = Bundle().apply { putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widget_id) }
-            intent.putExtras(bundle)
+            val intent = Intent(context, WidgetProvider::class.java)
+                    .setAction(action)
+                    .putExtras(bundle)
             return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         /**
          * @desc    saves the given history item/widget_id combination
          */
-        fun saveItemPref(settings: SharedPreferences, itemId: Int, widget_id: Int) {
+        internal fun saveItemPref(settings: SharedPreferences, itemId: Int, widget_id: Int) {
             // store HistoryItem details in settings
             settings.edit()
                     .putInt(SETTINGS_PREFIX + widget_id, itemId)
@@ -138,31 +132,36 @@ class WidgetProvider : AppWidgetProvider() {
 
     }
 
+    /**
+     * @desc    load the HistoryItem associated with a widget_id
+     */
+    private fun loadItemFromPref(settings: SharedPreferences, widget_id: Int): HistoryIt? {
+        // get item_id
+        val itemId = settings.getInt(SETTINGS_PREFIX + widget_id, -1)
+
+        return if (itemId == -1) {
+            // No item_id found for given widget return null
+            null
+        } else historyDb.historyDao().historyItem(itemId)
+
+    }
+
+    private fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
+        settings.edit()
+                .remove(SETTINGS_PREFIX + widget_id)
+                .remove(SETTINGS_PREFIX + widget_id + History.Items.TITLE)
+                .remove(SETTINGS_PREFIX + widget_id + History.Items.MAC)
+                .remove(SETTINGS_PREFIX + widget_id + History.Items.IP)
+                .remove(SETTINGS_PREFIX + widget_id + History.Items.PORT)
+                .apply()
+    }
 }
 
 private const val SETTINGS_PREFIX = "widget_"
 private const val WIDGET_ONCLICK = "net.mafro.android.wakeonlan.WidgetOnClick"
 
 /**
- * @desc    load the HistoryItem associated with a widget_id
+ * @desc    gets the widget id from an intent
  */
-private fun loadItemFromPref(settings: SharedPreferences, widget_id: Int): HistoryIt? {
-    // get item_id
-    val itemId = settings.getInt(SETTINGS_PREFIX + widget_id, -1)
-
-    return if (itemId == -1) {
-        // No item_id found for given widget return null
-        null
-    } else historyDb.historyDao().historyItem(itemId)
-
-}
-
-private fun deleteItemPref(settings: SharedPreferences, widget_id: Int) {
-    settings.edit()
-            .remove(SETTINGS_PREFIX + widget_id)
-            .remove(SETTINGS_PREFIX + widget_id + History.Items.TITLE)
-            .remove(SETTINGS_PREFIX + widget_id + History.Items.MAC)
-            .remove(SETTINGS_PREFIX + widget_id + History.Items.IP)
-            .remove(SETTINGS_PREFIX + widget_id + History.Items.PORT)
-            .apply()
-}
+internal fun getWidgetId(intent: Intent): Int =
+        intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)

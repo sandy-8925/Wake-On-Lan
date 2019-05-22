@@ -68,7 +68,7 @@ class WidgetConfigure : AppCompatActivity() {
         setResult(RESULT_CANCELED)
 
         // get the widget id
-        widgetId = WidgetProvider.getWidgetId(intent)
+        widgetId = getWidgetId(intent)
 
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             // no valid widget id; bailing
