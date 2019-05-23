@@ -11,7 +11,6 @@ class WakeOnLanApp : Application() {
         removeOldPrefs()
         historyDb = Room.databaseBuilder(this, HistoryDatabase::class.java, HistoryProvider.DATABASE_NAME)
                 .addMigrations(MigrationFrom1To2(), MigrationFrom2To3())
-                .allowMainThreadQueries()  //TODO: Change widget code so that we don't need to do this
                 .build()
         appContext = applicationContext
     }
