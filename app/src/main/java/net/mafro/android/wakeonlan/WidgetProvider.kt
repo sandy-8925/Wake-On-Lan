@@ -37,6 +37,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.annotation.AnyThread
+import androidx.annotation.UiThread
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -53,13 +54,13 @@ class WidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
-        val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
+        val prefs = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
 
         Observable.fromIterable(appWidgetIds.asIterable())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .map { widgetId ->
-                    Pair(widgetId, getItemIdForWidgetId(settings, widgetId))
+                    Pair(widgetId, getItemIdForWidgetId(prefs, widgetId))
                 }.filter {
                     it.second != -1
                 }.map {
@@ -87,6 +88,7 @@ class WidgetProvider : AppWidgetProvider() {
         }
     }
 
+    @UiThread
     private fun handleWidgetClick(context: Context, widgetId: Int) {
         val prefs = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
         // get the HistoryItem associated with the widget_id

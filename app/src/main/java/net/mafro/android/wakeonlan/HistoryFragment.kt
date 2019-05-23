@@ -97,7 +97,7 @@ class HistoryFragment : Fragment() {
                     createEditDialogInstance(historyItemId).show(fragmentManager, EDIT_DIALOG_TAG)
                 }
                 R.id.menu_delete -> {
-                    historyController.deleteHistory(historyItemId)
+                    historyController.deleteHistoryItem(historyItemId)
                 }
             }
             return true

@@ -37,7 +37,7 @@ internal class HistoryController {
     }
 
     @AnyThread
-    internal fun deleteHistory(historyItemId: Int) {
+    internal fun deleteHistoryItem(historyItemId: Int) {
         Completable.fromRunnable(DeleteHistItemAction(historyItemId))
                 .subscribeOn(Schedulers.io())
                 .subscribe()
