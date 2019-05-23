@@ -18,8 +18,7 @@ internal class HistoryController {
     @AnyThread
     internal fun sendWakePacket(historyItemId : Int) {
         Completable.fromRunnable {
-            val historyItem = historyDb.historyDao().historyItem(historyItemId)
-            if(historyItem == null) { throw Exception("Could not find item info for item ID = $historyItemId") }
+            val historyItem = historyDb.historyDao().getHistoryItem(historyItemId) ?: throw Exception("Could not find item info for item ID = $historyItemId")
             MagicPacket.send(historyItem.mac, historyItem.ip, historyItem.port)
             incrementHistory(historyItemId)
         }.subscribeOn(Schedulers.io())

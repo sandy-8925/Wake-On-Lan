@@ -60,6 +60,9 @@ interface HistoryDao {
     @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME} where ${History.Items._ID} = :id")
     fun historyItem(id : Int) : HistoryIt
 
+    @Query("select * from ${HistoryProvider.HISTORY_TABLE_NAME} where ${History.Items._ID} = :id")
+    fun getHistoryItem(id : Int) : HistoryIt?
+
     @Update
     fun updateItem(historyItem : HistoryIt)
 
