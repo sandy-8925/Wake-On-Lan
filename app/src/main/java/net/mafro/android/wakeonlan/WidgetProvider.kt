@@ -36,6 +36,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.RemoteViews
+import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 /**
  * @desc    This class is used to setup the home screen widget, as well as handle click events
@@ -51,14 +56,21 @@ class WidgetProvider : AppWidgetProvider() {
 
         val settings = context.getSharedPreferences(WakeOnLanActivity.TAG, 0)
 
-        for (widget_id in appWidgetIds) {
-            val item = loadItemFromPref(settings, widget_id)
-                    ?: // item or preferences missing
-                    // TODO: delete the widget probably (can't find a way to do this).
-                    // maybe set the title of the widget to ERROR
-                    continue
-            configureWidget(widget_id, item, context)
-        }
+        Observable.fromIterable(appWidgetIds.asIterable())
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .map { widgetId ->
+                    Pair(widgetId, loadItemFromPref(settings, widgetId))
+                }.filter {
+                    it.second != null
+                }.map {
+                    @Suppress("UNCHECKED_CAST")
+                    it as Pair<Int, HistoryIt>
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext { pair ->
+                    configureWidget(pair.first, pair.second, context)
+                }.subscribe()
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -132,6 +144,7 @@ class WidgetProvider : AppWidgetProvider() {
 
     }
 
+    @WorkerThread
     /**
      * @desc    load the HistoryItem associated with a widget_id
      */
@@ -145,6 +158,7 @@ class WidgetProvider : AppWidgetProvider() {
 
     }
 
+    @AnyThread
     private fun getItemIdForWidgetId(prefs: SharedPreferences, widget_id: Int) =
             prefs.getInt(SETTINGS_PREFIX + widget_id, -1)
 
