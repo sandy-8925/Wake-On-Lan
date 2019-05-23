@@ -37,7 +37,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.annotation.AnyThread
-import androidx.annotation.WorkerThread
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -60,16 +59,15 @@ class WidgetProvider : AppWidgetProvider() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .map { widgetId ->
-                    Pair(widgetId, loadItemFromPref(settings, widgetId))
+                    Pair(widgetId, getItemIdForWidgetId(settings, widgetId))
                 }.filter {
-                    it.second != null
+                    it.second != -1
                 }.map {
-                    @Suppress("UNCHECKED_CAST")
-                    it as Pair<Int, HistoryIt>
+                    Pair(it.first, historyDb.historyDao().historyItem(it.second))
                 }
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext { pair ->
-                    configureWidget(pair.first, pair.second, context)
+                .doOnNext {
+                    configureWidget(it.first, it.second, context)
                 }.subscribe()
     }
 
@@ -141,20 +139,6 @@ class WidgetProvider : AppWidgetProvider() {
                     .putInt(SETTINGS_PREFIX + widget_id, itemId)
                     .apply()
         }
-
-    }
-
-    @WorkerThread
-    /**
-     * @desc    load the HistoryItem associated with a widget_id
-     */
-    private fun loadItemFromPref(prefs: SharedPreferences, widget_id: Int): HistoryIt? {
-        // get item_id
-        val itemId = getItemIdForWidgetId(prefs, widget_id)
-        return if (itemId == -1) {
-            // No item_id found for given widget return null
-            null
-        } else historyDb.historyDao().historyItem(itemId)
 
     }
 
