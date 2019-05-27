@@ -1,7 +1,10 @@
 package net.mafro.android.wakeonlan
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.room.Room
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.TAG
 
@@ -13,6 +16,20 @@ class WakeOnLanApp : Application() {
                 .addMigrations(MigrationFrom1To2(), MigrationFrom2To3())
                 .build()
         appContext = applicationContext
+        setupNotifChannel()
+    }
+
+    private fun setupNotifChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel
+            val name = WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME
+            val descriptionText = getString(R.string.wake_service_notif_title)
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val notifChannel = NotificationChannel(WAKE_WIDGET_SERVICE_NOTIF_CHANNELID, name, importance)
+            notifChannel.description = descriptionText
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notifChannel)
+        }
     }
 
     private fun removeOldPrefs() {

@@ -27,4 +27,6 @@
     <string name="save">Save</string>
 	<string name="test">Test</string>
 	<string name="item_edit_load_failed_msg">Failed to load history item for editing</string>
+    <string name="wake_service_notif_title">Wake service</string>
+	<string name="wake_service_notif_text">Sending wake packet</string>
 </resources>

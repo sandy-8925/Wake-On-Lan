@@ -2,4 +2,5 @@
 <resources>
     <item name="hist_cell_position_tag" type="id" />
     <item name="hist_cell_itemid_tag" type="id" />
+    <item name="widget_wake_service_notif_id" type="id" />
 </resources>

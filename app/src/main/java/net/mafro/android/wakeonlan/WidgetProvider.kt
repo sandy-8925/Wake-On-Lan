@@ -34,6 +34,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.annotation.AnyThread
@@ -132,7 +133,7 @@ class WidgetProvider : AppWidgetProvider() {
             val intent = Intent(context, WidgetWakeService::class.java)
                     .setAction(ACTION_WAKE + widget_id)
                     .putExtras(bundle)
-            return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            return createForegroundServicePendingIntent(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         /**
@@ -160,6 +161,11 @@ class WidgetProvider : AppWidgetProvider() {
                 .remove(SETTINGS_PREFIX + widget_id + History.Items.PORT)
                 .apply()
     }
+}
+
+private fun createForegroundServicePendingIntent(context: Context, requestCode : Int, intent : Intent, flag : Int) : PendingIntent {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) return PendingIntent.getForegroundService(context, requestCode, intent, flag)
+    return PendingIntent.getService(context, requestCode, intent, flag)
 }
 
 private const val SETTINGS_PREFIX = "widget_"

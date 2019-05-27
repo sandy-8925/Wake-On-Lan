@@ -3,26 +3,29 @@ package net.mafro.android.wakeonlan
 import android.app.IntentService
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import androidx.core.app.NotificationCompat
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import org.apache.commons.lang3.StringUtils
 
-// TODO: Rename actions, choose action names that describe tasks that this
-// IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
 const val ACTION_WAKE = "net.mafro.android.wakeonlan.action.FOO"
-
-// TODO: Rename parameters
 const val EXTRA_ITEM_ID = "item_id"
-
 private const val EXTRA_INT_DEFAULT_VAL = -1
 
+internal const val WAKE_WIDGET_SERVICE_NOTIF_CHANNELID = "WAKE_WIDGET_SERVICE_NOTIF_CHANNELID"
+internal const val WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME = "WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME"
+
 /**
- * An [IntentService] subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * TODO: Customize class - update intent actions and extra parameters.
+ * An [IntentService] subclass for handling widget click actions
  */
 class WidgetWakeService : IntentService("WidgetWakeService") {
     override fun onHandleIntent(intent: Intent?) {
+        val notification = NotificationCompat.Builder(this, WAKE_WIDGET_SERVICE_NOTIF_CHANNELID)
+                .setContentTitle(getString(R.string.wake_service_notif_title))
+                .setContentText(getString(R.string.wake_service_notif_text))
+                .setSmallIcon(R.drawable.icon)
+                .build()
+        startForeground(R.id.widget_wake_service_notif_id, notification)
         intent ?: return
         if(!StringUtils.startsWith(intent.action, ACTION_WAKE)) return
         try {
