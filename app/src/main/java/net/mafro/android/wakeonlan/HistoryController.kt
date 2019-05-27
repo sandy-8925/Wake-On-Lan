@@ -17,13 +17,18 @@ internal class HistoryController {
     @SuppressLint("CheckResult")
     @AnyThread
     internal fun sendWakePacket(historyItemId : Int) {
-        Completable.fromRunnable {
-            val historyItem = historyDb.historyDao().getHistoryItem(historyItemId) ?: throw Exception("Could not find item info for item ID = $historyItemId")
+        createWakePacketCompletable(historyItemId)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(MagicPacketSentAction(appContext), MagicPacketErrorAction(appContext))
+    }
+
+    internal fun createWakePacketCompletable(historyItemId: Int): Completable {
+        return Completable.fromRunnable {
+            val historyItem = historyDb.historyDao().getHistoryItem(historyItemId)
+                    ?: throw Exception("Could not find item info for item ID = $historyItemId")
             MagicPacket.send(historyItem.mac, historyItem.ip, historyItem.port)
             incrementHistory(historyItemId)
         }.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(MagicPacketSentAction(appContext), MagicPacketErrorAction(appContext))
     }
 
     @WorkerThread
@@ -72,7 +77,7 @@ internal class UpdateHistItemAction(private val item: HistoryIt) : Runnable {
     }
 }
 
-private class MagicPacketSentAction(val context: Context) : Action {
+internal class MagicPacketSentAction(val context: Context) : Action {
     override fun run() {
         // display sent message to user
         WakeOnLanActivity.notifyUser(context.getString(R.string.packet_sent), context)

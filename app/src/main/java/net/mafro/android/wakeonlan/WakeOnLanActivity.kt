@@ -133,18 +133,8 @@ class WakeOnLanActivity : AppCompatActivity() {
         const val LAST_USED = 1
         const val USED_COUNT = 2
 
-        private var notification: Toast? = null
-
         fun notifyUser(message: String, context: Context) {
-            var notif = notification
-            if (notif != null) {
-                notif.setText(message)
-                notif.show()
-            } else {
-                notif = Toast.makeText(context, message, Toast.LENGTH_SHORT)
-                notification = notif
-                notif.show()
-            }
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
         }
     }
 }

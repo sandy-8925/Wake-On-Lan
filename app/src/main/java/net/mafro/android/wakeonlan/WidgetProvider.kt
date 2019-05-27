@@ -117,19 +117,22 @@ class WidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.appwidget_text, item.title)
 
             // append id to action to prevent clearing the extras bundle
-            views.setOnClickPendingIntent(R.id.appwidget_button, getPendingSelfIntent(context, widget_id, WIDGET_ONCLICK + widget_id))
+            views.setOnClickPendingIntent(R.id.appwidget_button, getPendingSelfIntent(context, widget_id, item.id))
 
             // tell the widget manager
             val appWidgetManager = AppWidgetManager.getInstance(context)
             appWidgetManager.updateAppWidget(widget_id, views)
         }
 
-        private fun getPendingSelfIntent(context: Context, widget_id: Int, action: String): PendingIntent {
-            val bundle = Bundle().apply { putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widget_id) }
-            val intent = Intent(context, WidgetProvider::class.java)
-                    .setAction(action)
+        private fun getPendingSelfIntent(context: Context, widget_id: Int, itemId: Int): PendingIntent {
+            val bundle = Bundle().apply {
+                putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widget_id)
+                putInt(EXTRA_ITEM_ID, itemId)
+            }
+            val intent = Intent(context, WidgetWakeService::class.java)
+                    .setAction(ACTION_WAKE + widget_id)
                     .putExtras(bundle)
-            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         /**
