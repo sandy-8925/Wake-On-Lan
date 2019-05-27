@@ -31,14 +31,18 @@ class WidgetWakeService : IntentService("WidgetWakeService") {
             if (itemId == EXTRA_INT_DEFAULT_VAL || widgetId == EXTRA_INT_DEFAULT_VAL) return
             historyController.createWakePacketCompletable(itemId).blockingAwait()
             //Toasts must be shown on UI thread
-            Observable.just("").observeOn(AndroidSchedulers.mainThread()).doOnNext {
-                MagicPacketSentAction(this.applicationContext).run()
-            }.subscribe()
+            Observable.just("")
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext {
+                        MagicPacketSentAction(this.applicationContext).run()
+                    }.subscribe()
         } catch (exception : Exception) {
             //Toasts must be shown on UI thread
-            Observable.just("").observeOn(AndroidSchedulers.mainThread()).doOnNext {
-                MagicPacketErrorAction(this.applicationContext).accept(exception)
-            }.subscribe()
+            Observable.just("")
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext {
+                        MagicPacketErrorAction(this.applicationContext).accept(exception)
+                    }.subscribe()
         }
     }
 }
