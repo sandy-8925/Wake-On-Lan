@@ -20,14 +20,17 @@ internal const val WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME = "WAKE_WIDGET_SERVICE
  */
 class WidgetWakeService : IntentService("WidgetWakeService") {
     override fun onHandleIntent(intent: Intent?) {
+
         val notification = NotificationCompat.Builder(this, WAKE_WIDGET_SERVICE_NOTIF_CHANNELID)
                 .setContentTitle(getString(R.string.wake_service_notif_title))
                 .setContentText(getString(R.string.wake_service_notif_text))
                 .setSmallIcon(R.drawable.icon)
                 .build()
         startForeground(R.id.widget_wake_service_notif_id, notification)
+
         intent ?: return
         if(!StringUtils.startsWith(intent.action, ACTION_WAKE)) return
+
         try {
             val itemId = intent.getIntExtra(EXTRA_ITEM_ID, EXTRA_INT_DEFAULT_VAL)
             val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, EXTRA_INT_DEFAULT_VAL)
