@@ -1,8 +1,14 @@
 package net.mafro.android.wakeonlan
 
+import android.app.Application
 import android.app.IntentService
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,6 +20,15 @@ private const val EXTRA_INT_DEFAULT_VAL = -1
 
 internal const val WAKE_WIDGET_SERVICE_NOTIF_CHANNELID = "WAKE_WIDGET_SERVICE_NOTIF_CHANNELID"
 internal const val WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME = "WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME"
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun setupWakeServiceNotifChannel(context: Context) {
+    val descriptionText = context.getString(R.string.wake_service_notif_title)
+    val notifChannel = NotificationChannel(WAKE_WIDGET_SERVICE_NOTIF_CHANNELID, WAKE_WIDGET_SERVICE_NOTIF_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
+            .apply { description = descriptionText }
+    val notificationManager = context.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.createNotificationChannel(notifChannel)
+}
 
 /**
  * An [IntentService] subclass for handling widget click actions
