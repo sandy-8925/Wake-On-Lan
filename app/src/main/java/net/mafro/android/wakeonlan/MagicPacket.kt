@@ -30,8 +30,9 @@ package net.mafro.android.wakeonlan
 
 import android.content.Context
 import androidx.annotation.WorkerThread
-import io.reactivex.Single
+import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import org.apache.commons.lang3.StringUtils
@@ -39,7 +40,6 @@ import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.util.concurrent.Callable
 import java.util.regex.Pattern
 
 
@@ -56,7 +56,7 @@ object MagicPacket {
 
     @WorkerThread
     @Throws(IOException::class, IllegalArgumentException::class)
-    internal fun send(mac: String, ip: String, port: Int = PORT): String {
+    internal fun send(mac: String, ip: String, port: Int = PORT) {
         // validate MAC and chop into array
         val cleanedMac = cleanMac(mac)
         if(!isMacValid(cleanedMac)) throw java.lang.IllegalArgumentException("MAC is invalid! - $cleanedMac")
@@ -87,8 +87,6 @@ object MagicPacket {
         val socket = DatagramSocket()
         socket.send(packet)
         socket.close()
-
-        return StringUtils.join(hex, SEPARATOR)
     }
 
     internal fun cleanMac(inputMac: String) : String {
@@ -141,24 +139,24 @@ object MagicPacket {
                 .subscribe()
     }
 
-    private fun createSendPacketSingle(context: Context, title: String, mac: String, ip: String, port: Int): Single<String> {
-        return Single.fromCallable(MagicPacketCallable(mac, ip, port))
+    private fun createSendPacketSingle(context: Context, title: String, mac: String, ip: String, port: Int): Completable {
+        return Completable.fromRunnable(MagicPacketCallable(mac, ip, port))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(MagicPacketErrorAction(context))
-                .doOnSuccess(MagicPacketSuccessAction(context, title))
+                .doOnComplete(MagicPacketSuccessAction(context, title))
     }
 
-    private class MagicPacketCallable constructor(private val mac: String, private val ip: String, private val port: Int) : Callable<String> {
+    private class MagicPacketCallable(private val mac: String, private val ip: String, private val port: Int) : Runnable {
         @Throws(IOException::class)
-        override fun call(): String {
-            return send(mac, ip, port)
+        override fun run() {
+            send(mac, ip, port)
         }
     }
 }
 
-internal class MagicPacketSuccessAction constructor(private val context: Context, private val title: String) : Consumer<String> {
-    override fun accept(s: String) {
+internal class MagicPacketSuccessAction constructor(private val context: Context, private val title: String) : Action {
+    override fun run() {
         // display sent message to user
         val msg = String.format("%s to %s", context.getString(R.string.packet_sent), title)
         WakeOnLanActivity.notifyUser(msg, context)
