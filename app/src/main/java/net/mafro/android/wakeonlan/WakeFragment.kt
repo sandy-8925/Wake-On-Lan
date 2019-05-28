@@ -23,20 +23,7 @@ class WakeFragment : Fragment() {
         return binding.root
     }
 
-    private val macFocusChangeListener: View.OnFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-        // validate mac address on field exit
-        if (!hasFocus) {
-            val vmac = v as EditText
-            // validate our mac address
-            var mac = vmac.text.toString()
-            if (mac.isNotEmpty()) {
-                mac = MagicPacket.cleanMac(mac)
-                vmac.setText(mac)
-                if(MagicPacket.isMacValid(mac)) vmac.error = null
-                else vmac.error = getString(R.string.invalid_mac)
-            }
-        }
-    }
+    private val macFocusChangeListener: View.OnFocusChangeListener = MacFieldFocusChangeListener()
 
     private val testClickListener: View.OnClickListener = View.OnClickListener {
         val vtitle = binding.wakeForm.title
@@ -166,5 +153,22 @@ internal class WakePacketSaveAction(private val title: String, private val mac: 
             it.createdDate = System.currentTimeMillis()
         }
         historyDb.historyDao().addNewItem(newHistoryIt)
+    }
+}
+
+internal class MacFieldFocusChangeListener : View.OnFocusChangeListener {
+    override fun onFocusChange(v: View?, hasFocus: Boolean) {
+        // validate mac address on field exit
+        if (!hasFocus) {
+            val vmac = v as EditText
+            // validate our mac address
+            var mac = vmac.text.toString()
+            if (mac.isNotEmpty()) {
+                mac = MagicPacket.cleanMac(mac)
+                vmac.setText(mac)
+                if(MagicPacket.isMacValid(mac)) vmac.error = null
+                else vmac.error = vmac.context.getString(R.string.invalid_mac)
+            }
+        }
     }
 }

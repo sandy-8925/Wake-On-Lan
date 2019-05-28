@@ -47,6 +47,7 @@ class EditHistoryItemDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = requireActivity().layoutInflater
         binding = DataBindingUtil.inflate(inflater, R.layout.wake_form, null, false)
+        binding.mac.onFocusChangeListener = MacFieldFocusChangeListener()
 
         val builder = AlertDialog.Builder(requireContext())
                 .setTitle(R.string.menu_edit)
