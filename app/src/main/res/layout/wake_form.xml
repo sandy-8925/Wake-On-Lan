@@ -30,6 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:text="@{historyItem.title}"
         android:inputType="textCapWords"
+        android:maxLength="@integer/item_name_max_length"
         />
 
     <TextView
@@ -46,6 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/wf_macaddr_tv"
         android:text="@{historyItem.mac}"
         android:inputType="text"
+        android:maxLength="@integer/item_mac_max_length"
         />
 
     <TextView
@@ -63,7 +65,7 @@
         android:text="@{historyItem.ip}"
         android:inputType="text"
         />
-n
+
     <TextView
         android:id="@+id/wf_port_tv"
         android:layout_width="match_parent"
