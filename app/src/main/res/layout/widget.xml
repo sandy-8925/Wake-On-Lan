@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
-	android:gravity="center|center_vertical"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	android:gravity="center"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
 	android:padding="3dp">
 
 	<ImageButton
@@ -18,7 +18,7 @@
 		android:id="@+id/appwidget_text"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_horizontal|center_vertical"
+		android:gravity="center"
 		tools:text="Item title"
 		android:background="@android:color/background_light"
 		android:textColor="@android:color/background_dark"
