@@ -34,6 +34,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import org.apache.commons.lang3.StringUtils
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -49,6 +50,9 @@ object MagicPacket {
     internal const val BROADCAST = "192.168.1.255"
     internal const val PORT = 9
     private const val SEPARATOR = ':'
+
+    // regexp pattern match a valid MAC address
+    private val macPattern = Pattern.compile("((([0-9a-fA-F]){2}[-:]){5}([0-9a-fA-F]){2})")
 
     @WorkerThread
     @Throws(IOException::class, IllegalArgumentException::class)
@@ -82,47 +86,33 @@ object MagicPacket {
         socket.send(packet)
         socket.close()
 
-        return hex[0] + SEPARATOR + hex[1] + SEPARATOR + hex[2] + SEPARATOR + hex[3] + SEPARATOR + hex[4] + SEPARATOR + hex[5]
+        return StringUtils.join(hex, SEPARATOR)
     }
 
     @Throws(IllegalArgumentException::class)
     internal fun cleanMac(mac: String): String {
-        val hex = validateMac(mac)
-
-        var sb = StringBuffer()
-        var isMixedCase = false
-
-        // check for mixed case
-        for (i in 0..5) {
-            sb.append(hex[i])
-        }
-        val testMac = sb.toString()
-        if (testMac.toLowerCase() != testMac && testMac.toUpperCase() != testMac) {
-            isMixedCase = true
-        }
-
-        sb = StringBuffer()
-        for (i in 0..5) {
-            // convert mixed case to lower
-            if (isMixedCase) {
-                sb.append(hex[i].toLowerCase())
-            } else {
-                sb.append(hex[i])
-            }
-            if (i < 5) {
-                sb.append(SEPARATOR)
-            }
-        }
-        return sb.toString()
+        val hex = validateMac(mac.toLowerCase())
+        return StringUtils.join(hex, SEPARATOR)
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun validateMac(mac: String): Array<String> {
-        var mac = mac
-        // error handle semi colons
-        mac = mac.replace(";", ":")
+    private fun validateMac(inputMac: String): Array<String> {
+        var mac = inputMac.replace(';', ':')
 
         // attempt to assist the user a little
+        mac = insertColonsIfNeeded(mac)
+        val matcher = macPattern.matcher(mac)
+
+        if (matcher.find()) {
+            val result = matcher.group()
+            return result.split("(\\:|\\-)".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        } else {
+            throw IllegalArgumentException("Invalid MAC address")
+        }
+    }
+
+    private fun insertColonsIfNeeded(inputMac: String): String {
+        var mac = inputMac
         if (mac.matches("([a-zA-Z0-9]){12}".toRegex())) {
             // expand 12 chars into a valid mac address
             val macBuilder = StringBuilder()
@@ -134,17 +124,7 @@ object MagicPacket {
             }
             mac = macBuilder.toString()
         }
-
-        // regexp pattern match a valid MAC address
-        val pat = Pattern.compile("((([0-9a-fA-F]){2}[-:]){5}([0-9a-fA-F]){2})")
-        val m = pat.matcher(mac)
-
-        if (m.find()) {
-            val result = m.group()
-            return result.split("(\\:|\\-)".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        } else {
-            throw IllegalArgumentException("Invalid MAC address")
-        }
+        return mac
     }
 
     @JvmStatic
