@@ -28,14 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.mafro.android.wakeonlan
 
-import android.app.LocalActivityManager
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TabHost
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -61,73 +55,10 @@ class WakeOnLanActivity : AppCompatActivity() {
         //		doStuff();
     }
 
-    private fun doStuff() {
-        val th: TabHost? = findViewById(R.id.tabhost)
-        // configure tabs
-
-        // tabs only exist in phone layouts
-        if (th != null) {
-            isTablet = true
-
-            val lam = LocalActivityManager(this, false)
-            th.setup(lam)
-
-            th.addTab(th.newTabSpec("tab_history").setIndicator(getString(R.string.tab_history), resources.getDrawable(R.drawable.ical)).setContent(R.id.historyview))
-            th.addTab(th.newTabSpec("tab_wake").setIndicator(getString(R.string.tab_wake), resources.getDrawable(R.drawable.wake)).setContent(R.id.wakeview))
-
-            th.currentTab = 0
-
-            // register self as tab changed listener
-//            th!!.setOnTabChangedListener(this)
-        } else {
-            // set the background colour of the titles
-            val historytitle = findViewById<TextView>(R.id.historytitle)
-            historytitle.setBackgroundColor(-0x666667)
-            val waketitle = findViewById<TextView>(R.id.waketitle)
-            waketitle.setBackgroundColor(-0x666667)
-        }
-    }
-
-    private fun onTabChanged(tabId: String) {
-        if (tabId == "tab_wake") {
-            // enter typing mode - no clear of form until exit typing mode
-            typingMode = true
-
-        } else if (tabId == "tab_history") {
-            // set form back to defaults, if typing mode has ended (button was clicked)
-            if (!typingMode) {
-                val vtitle = findViewById<EditText>(R.id.title)
-                val vmac = findViewById<EditText>(R.id.mac)
-                val vip = findViewById<EditText>(R.id.ip)
-                val vport = findViewById<EditText>(R.id.port)
-
-                vtitle.text = null
-                vmac.text = null
-                vip.setText(MagicPacket.BROADCAST)
-                vport.setText(Integer.toString(MagicPacket.PORT))
-
-                // clear any errors
-                vmac.error = null
-
-                // reset both our button's text
-                val sendWake = findViewById<Button>(R.id.test_wake)
-                sendWake.setText(R.string.button_wake)
-                val clearWake = findViewById<Button>(R.id.clear_wake)
-                clearWake.setText(R.string.button_clear)
-            }
-        }
-    }
-
     companion object {
         const val TAG = "WakeOnLan"
 
-        const val MENU_ITEM_WAKE = Menu.FIRST
-        const val MENU_ITEM_DELETE = Menu.FIRST + 1
         internal const val SORT_MODE_PREFS_KEY = "sort_mode"
-
-        private var typingMode = false
-
-        private var isTablet = false
 
         const val CREATED = 0
         const val LAST_USED = 1

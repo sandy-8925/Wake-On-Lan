@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.room.Room
 import net.mafro.android.wakeonlan.WakeOnLanActivity.Companion.TAG
 
+@Suppress("unused")
 class WakeOnLanApp : Application() {
     override fun onCreate() {
         super.onCreate()
