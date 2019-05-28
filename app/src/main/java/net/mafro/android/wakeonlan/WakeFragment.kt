@@ -27,19 +27,14 @@ class WakeFragment : Fragment() {
         // validate mac address on field exit
         if (!hasFocus) {
             val vmac = v as EditText
-            try {
-                // validate our mac address
-                var mac = vmac.text.toString()
-                if (mac.isNotEmpty()) {
-                    mac = MagicPacket.cleanMac(mac)
-                    vmac.setText(mac)
-                }
-                vmac.error = null
-
-            } catch (iae: IllegalArgumentException) {
-                vmac.error = getString(R.string.invalid_mac)
+            // validate our mac address
+            var mac = vmac.text.toString()
+            if (mac.isNotEmpty()) {
+                mac = MagicPacket.cleanMac(mac)
+                vmac.setText(mac)
+                if(MagicPacket.isMacValid(mac)) vmac.error = null
+                else vmac.error = getString(R.string.invalid_mac)
             }
-
         }
     }
 
